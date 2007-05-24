@@ -23,7 +23,7 @@ def read(*rnames):
 
 setup (
     name='z3c.coverage',
-    version='0.1.0c1',
+    version='0.1.0',
     author = "Zope Community",
     author_email = "zope3-dev@zope.org",
     description = "A script to visualize coverage reports via HTML",
@@ -33,7 +33,7 @@ setup (
     license = "ZPL 2.1",
     keywords = "zope3 test coverage html",
     classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 Stable/Production',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Zope Public License',
