@@ -23,7 +23,7 @@ def read(*rnames):
 
 setup (
     name='z3c.coverage',
-    version='0.1.0',
+    version='0.2.0',
     author = "Zope Community",
     author_email = "zope3-dev@zope.org",
     description = "A script to visualize coverage reports via HTML",
@@ -56,6 +56,7 @@ setup (
     entry_points = """
         [console_scripts]
         coverage = z3c.coverage.coveragereport:main
+        coveragediff = z3c.coverage.coveragediff:main
         """,
     dependency_links = ['http://download.zope.org/distribution'],
     zip_safe = False,
