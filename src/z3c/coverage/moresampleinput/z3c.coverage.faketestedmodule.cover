@@ -1,0 +1,23 @@
+       #!/usr/bin/env python
+       """
+       Test suite for z3c.coverage
+    1: """
+       
+    1: import unittest
+       
+       # prefer the zope.testing version, if it is available
+    1: try:
+    1:     from zope.testing import doctest
+    1: except ImportError:
+    1:     import doctest
+       
+       
+    1: def test_suite():
+    1:     return unittest.TestSuite([
+    1:                 doctest.DocFileSuite('coveragediff.txt'),
+    1:                 doctest.DocTestSuite('z3c.coverage.coveragediff'),
+    1:                 doctest.DocTestSuite('z3c.coverage.coveragereport'),
+                                      ])
+       
+    1: if __name__ == '__main__':
+    1:     unittest.main(defaultTest='test_suite')
