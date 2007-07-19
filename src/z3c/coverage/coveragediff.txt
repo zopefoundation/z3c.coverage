@@ -58,8 +58,68 @@ untested code lines.
 
     >>> from z3c.coverage.coveragediff import count_coverage
     >>> filename = os.path.join(sampleinput_dir, 'z3c.coverage.tests.cover')
-    >>> count_coverage(filename)
-    (10, 3)
+    >>> tested, untested = count_coverage(filename)
+    >>> tested
+    10
+    >>> untested
+    3
+
+
+Comparing coverage files
+------------------------
+
+The function ``compare_file`` reads two coverage reports for the same module
+and reports a warning if the new file has more untested lines of code
+
+    >>> from z3c.coverage.coveragediff import compare_file
+    >>> another_dir = os.path.join(z3c.coverage.__path__[0], 'moresampleinput')
+    >>> old_filename = os.path.join(sampleinput_dir,
+    ...                             'z3c.coverage.coveragediff.cover')
+    >>> new_filename = os.path.join(another_dir,
+    ...                             'z3c.coverage.coveragediff.cover')
+    >>> compare_file(old_filename, new_filename)
+    z3c.coverage.coveragediff: 36 new lines of untested code
+
+If the number of untested lines is the same or smaller than before, there's
+no output
+
+    >>> compare_file(new_filename, new_filename)
+    >>> compare_file(new_filename, old_filename)
+
+The function ``new_file`` is used to look for untested lines of code in new
+modules.
+
+    >>> from z3c.coverage.coveragediff import new_file
+    >>> new_filename = os.path.join(another_dir,
+    ...                             'z3c.coverage.fakenewmodule.cover')
+    >>> new_file(new_filename)
+    z3c.coverage.fakenewmodule: new file with 3 lines of untested code (out of 13)
+
+Once again, if there are no untested lines, ``new_file`` is quiet
+
+    >>> new_filename = os.path.join(another_dir,
+    ...                             'z3c.coverage.faketestedmodule.cover')
+    >>> new_file(new_filename)
+
+
+Comparing directories
+---------------------
+
+``compare_dirs`` ties it all together: you pass in two directory names, you get
+a bunch of warnings about regressions
+
+    >>> from z3c.coverage.coveragediff import compare_dirs
+    >>> compare_dirs(sampleinput_dir, another_dir)
+    z3c.coverage.coveragediff: 36 new lines of untested code
+    z3c.coverage.fakenewmodule: new file with 3 lines of untested code (out of 13)
+
+You can pass ``include`` and ``exclude`` arguments as well
+
+    >>> compare_dirs(sampleinput_dir, another_dir, exclude=['[Ff]ake'])
+    z3c.coverage.coveragediff: 36 new lines of untested code
+
+    >>> compare_dirs(sampleinput_dir, another_dir, include=['d.ff'])
+    z3c.coverage.coveragediff: 36 new lines of untested code
 
 
 MailSender
