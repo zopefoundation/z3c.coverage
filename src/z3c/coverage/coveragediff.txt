@@ -442,3 +442,15 @@ You can ask for the output to be emailed instead of being printed to stdout.
     QUIT
 
 
+coveragediff.py is a script
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For convenience you can download the ``coveragediff.py`` module and run it
+as a script
+
+    >>> sys.argv = ['coveragediff', sampleinput_dir, another_dir]
+    >>> script_file = os.path.join(z3c.coverage.__path__[0], 'coveragediff.py')
+    >>> execfile(script_file, dict(__name__='__main__'))
+    z3c.coverage.coveragediff: 36 new lines of untested code
+    z3c.coverage.fakenewmodule: new file with 3 lines of untested code (out of 13)
+
