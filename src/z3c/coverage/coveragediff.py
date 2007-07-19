@@ -293,18 +293,10 @@ class ReportEmailer(object):
                                    body)
 
 
-def selftest():
-    """Run all unit tests in this module."""
-    import doctest
-    nfail, ntests = doctest.testmod()
-    if nfail == 0:
-        print "All %d tests passed." % ntests
-
-
 def main():
     """Parse command line arguments and do stuff."""
     progname = os.path.basename(sys.argv[0])
-    parser = optparse.OptionParser("usage: %prog olddir newdir",
+    parser = optparse.OptionParser("usage: %prog [options] olddir newdir",
                                    prog=progname)
     parser.add_option('--include', metavar='REGEX',
                       help='only consider files matching REGEX',
@@ -323,12 +315,7 @@ def main():
     parser.add_option('--web-url', metavar='BASEURL', dest='web_url',
                       help='include hyperlinks to HTML-ized coverage'
                            ' reports at a given URL')
-    parser.add_option('--selftest', help='run integrity tests',
-                      action='store_true')
     opts, args = parser.parse_args()
-    if opts.selftest:
-        selftest()
-        return
     if len(args) != 2:
         parser.error("wrong number of arguments")
     olddir, newdir = args
