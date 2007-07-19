@@ -240,6 +240,22 @@ class MailSender(object):
         smtp.quit()
 
 
+class ReportPrinter(object):
+    """Reporter to sys.stdout."""
+
+    def __init__(self, web_url=None):
+        self.web_url = web_url
+
+    def warn(self, filename, message):
+        """Warn about test coverage regression."""
+        module = strip(os.path.basename(filename), '.cover')
+        print '%s: %s' % (module, message)
+        if self.web_url:
+            url = urljoin(self.web_url, module + '.html')
+            print 'See ' + url
+            print
+
+
 class ReportEmailer(object):
     """Warning collector and emailer."""
 
@@ -310,12 +326,11 @@ def main():
         parser.error("wrong number of arguments")
     olddir, newdir = args
     if opts.email:
-        mailer = ReportEmailer(opts.sender, opts.email, opts.subject, opts.web_url)
-        warnfunc = mailer.warn
+        reporter = ReportEmailer(opts.sender, opts.email, opts.subject, opts.web_url)
     else:
-        warnfunc = warn
+        reporter = ReportPrinter(opts.web_url)
     compare_dirs(olddir, newdir, include=opts.include, exclude=opts.exclude,
-                 warn=warnfunc)
+                 warn=reporter.warn)
     if opts.email:
         mailer.send()
 

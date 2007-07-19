@@ -9,10 +9,45 @@ This document describes the internals of ``coveragediff``.  It also acts as
 a test suite.
 
 
+ReportPrinter
+-------------
+
+The ``ReportPrinter`` class is responsible for formatting the output.
+
+    >>> from z3c.coverage.coveragediff import ReportPrinter
+    >>> printer = ReportPrinter()
+    >>> printer.warn('/tmp/coverage/z3c.coverage.coveragediff.cover',
+    ...              '3 new untested lines')
+    z3c.coverage.coveragediff: 3 new untested lines
+    >>> printer.warn('/tmp/coverage/z3c.coverage.coveragereport.cover',
+    ...              '2 new untested lines')
+    z3c.coverage.coveragereport: 2 new untested lines
+
+
+Links to web pages
+~~~~~~~~~~~~~~~~~~
+
+Report printer can also include links to web pages with the coverage reports
+(e.g. the ones you can get from ``coveragereport``).
+
+    >>> printer = ReportPrinter(web_url='http://example.com/coverage/')
+    >>> printer.warn('/tmp/coverage/z3c.coverage.coveragediff.cover',
+    ...              '3 new untested lines')
+    z3c.coverage.coveragediff: 3 new untested lines
+    See http://example.com/coverage/z3c.coverage.coveragediff.html
+    <BLANKLINE>
+    >>> printer.warn('/tmp/coverage/z3c.coverage.coveragereport.cover',
+    ...              '2 new untested lines')
+    z3c.coverage.coveragereport: 2 new untested lines
+    See http://example.com/coverage/z3c.coverage.coveragereport.html
+    <BLANKLINE>
+
+
 ReportEmailer
 -------------
 
-The ``ReportEmailer`` class collects warnings and sends them via email.
+The ``ReportEmailer`` class is an alternative to ``ReportPrinter``.  It
+collects warnings and sends them via email.
 
 You pass the basic email parameters (sender, recipient and subject line)
 to the constructor:
