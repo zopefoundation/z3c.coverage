@@ -3,18 +3,19 @@
 Test suite for z3c.coverage
 """
 
-import unittest
-
-# prefer the zope.testing version, if it is available
-try:
-    from zope.testing import doctest
-except ImportError:
-    import doctest
+import unittest, re
+from zope.testing import doctest, renormalizing
 
 
 def test_suite():
+    checker = renormalizing.RENormalizing([
+                # optparse in Python 2.4 prints "usage:" and "options:",
+                # in 2.5 it prints "Usage:" and "Options:".
+                (re.compile('^usage:'), 'Usage:'),
+                (re.compile('^options:', re.MULTILINE), 'Options:'),
+                                           ])
     return unittest.TestSuite([
-                doctest.DocFileSuite('coveragediff.txt'),
+                doctest.DocFileSuite('coveragediff.txt', checker=checker),
                 doctest.DocTestSuite('z3c.coverage.coveragediff'),
                 doctest.DocTestSuite('z3c.coverage.coveragereport'),
                                ])
