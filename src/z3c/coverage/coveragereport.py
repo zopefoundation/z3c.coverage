@@ -16,7 +16,7 @@
 
 Convert unit test coverage reports to HTML.
 
-Usage: coverage_reports.py [report-directory [output-directory]]
+Usage: coveragereport.py [report-directory [output-directory]]
 
 Locates plain-text coverage reports (files named
 ``dotted.package.name.cover``) in the report directory and produces HTML

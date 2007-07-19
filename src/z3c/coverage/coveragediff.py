@@ -17,7 +17,7 @@ Compare the test coverage between two versions.  The promary goal is to find
 regressions in test coverage (newly added lines of code without tests, or
 old lines of code that used to have tests but don't any more).
 
-Usage: coverage_diff.py [options] old-dir new-dir
+Usage: coveragediff.py [options] old-dir new-dir
 
 The directories are expected to contain files named '<package>.<module>.cover'
 with the format that Python's trace.py produces.
