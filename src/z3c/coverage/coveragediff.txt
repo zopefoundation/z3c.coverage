@@ -1,0 +1,91 @@
+coveragediff
+============
+
+``coveragediff`` is a tool that can be used to compare two directories with
+coverage reports.  It reports regressions, that is, increases in the number
+of untested code.
+
+This document describes the internals of ``coveragediff``.  It also acts as
+a test suite.
+
+
+ReportEmailer
+-------------
+
+The ``ReportEmailer`` class collects warnings and sends them via email.
+
+You pass the basic email parameters (sender, recipient and subject line)
+to the constructor:
+
+    >>> from z3c.coverage.coveragediff import ReportEmailer
+    >>> emailer = ReportEmailer('Some Bot <bot@example.com>',
+    ...                         'Maintainer <m@example.com>',
+    ...                         'Test coverage regressions')
+
+You add warnings about Python modules by passing the filename of the
+coverage file and the message
+
+    >>> emailer.warn('/tmp/coverage/z3c.coverage.coveragediff.cover',
+    ...              '3 new untested lines')
+    >>> emailer.warn('/tmp/coverage/z3c.coverage.coveragereport.cover',
+    ...              '2 new untested lines')
+
+Finally you send the email.  Since it wouldn't be a good idea to actually
+send emails from the test suite, we'll use a stub MailSender class:
+
+    >>> class FakeMailSender(object):
+    ...     def send_email(self, from_addr, to_addr, subject, body):
+    ...         print "From:", from_addr
+    ...         print "To:", to_addr
+    ...         print "Subject:", subject
+    ...         print "---"
+    ...         print body
+    >>> emailer.mailer = FakeMailSender()
+    >>> emailer.send()
+    From: Some Bot <bot@example.com>
+    To: Maintainer <m@example.com>
+    Subject: Test coverage regressions
+    ---
+    z3c.coverage.coveragediff: 3 new untested lines
+    z3c.coverage.coveragereport: 2 new untested lines
+
+
+Links to web pages
+~~~~~~~~~~~~~~~~~~
+
+Report emailer can also include links to web pages with the coverage reports
+(e.g. the ones you can get from ``coveragereport``).
+
+    >>> emailer = ReportEmailer('Some Bot <bot@example.com>',
+    ...                         'Maintainer <m@example.com>',
+    ...                         'Test coverage regressions',
+    ...                         web_url='http://example.com/coverage',
+    ...                         mailer=FakeMailSender())
+    >>> emailer.warn('/tmp/coverage/z3c.coverage.coveragediff.cover',
+    ...              '3 new untested lines')
+    >>> emailer.warn('/tmp/coverage/z3c.coverage.coveragereport.cover',
+    ...              '2 new untested lines')
+    >>> emailer.send()
+    From: Some Bot <bot@example.com>
+    To: Maintainer <m@example.com>
+    Subject: Test coverage regressions
+    ---
+    z3c.coverage.coveragediff: 3 new untested lines
+    See http://example.com/coverage/z3c.coverage.coveragediff.html
+    <BLANKLINE>
+    z3c.coverage.coveragereport: 2 new untested lines
+    See http://example.com/coverage/z3c.coverage.coveragereport.html
+    <BLANKLINE>
+
+
+Empty reports
+~~~~~~~~~~~~~
+
+Empty reports are not sent out.
+
+    >>> emailer = ReportEmailer('Some Bot <bot@example.com>',
+    ...                         'Maintainer <m@example.com>',
+    ...                         'Test coverage regressions',
+    ...                         mailer=FakeMailSender())
+    >>> emailer.send()
+

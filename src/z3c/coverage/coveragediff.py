@@ -36,6 +36,16 @@ try:
 except NameError:
     # python 2.4 compatibility
     def any(list):
+        """Return True if bool(x) is True for any x in the iterable.
+
+            >>> any([1, 'yes', 0, None])
+            True
+            >>> any([0, None, ''])
+            False
+            >>> any([])
+            False
+
+        """
         for item in list:
             if item:
                 return True
@@ -177,6 +187,37 @@ def strip(string, suffix):
     return string
 
 
+def urljoin(base, *suburls):
+    """Join base URL and zero or more subURLs.
+
+    This function is best described by examples:
+
+        >>> urljoin('http://example.com')
+        'http://example.com/'
+
+        >>> urljoin('http://example.com/')
+        'http://example.com/'
+
+        >>> urljoin('http://example.com', 'a', 'b/c', 'd')
+        'http://example.com/a/b/c/d'
+
+        >>> urljoin('http://example.com/', 'a', 'b/c', 'd')
+        'http://example.com/a/b/c/d'
+
+        >>> urljoin('http://example.com/a', 'b/c', 'd')
+        'http://example.com/a/b/c/d'
+
+        >>> urljoin('http://example.com/a/', 'b/c', 'd')
+        'http://example.com/a/b/c/d'
+
+    SubURLs should not contain trailing or leading slashes (with one exception:
+    the last subURL may have a trailing slash).  SubURLs should not be empty.
+    """
+    if not base.endswith('/'):
+        base += '/'
+    return base + '/'.join(suburls)
+
+
 class MailSender(object):
     """Send emails over SMTP"""
 
@@ -202,12 +243,14 @@ class MailSender(object):
 class ReportEmailer(object):
     """Warning collector and emailer."""
 
-    def __init__(self, from_addr, to_addr, subject, mailer=None):
+    def __init__(self, from_addr, to_addr, subject, web_url=None,
+                 mailer=None):
         if not mailer:
             mailer = MailSender()
         self.from_addr = from_addr
         self.to_addr = to_addr
         self.subject = subject
+        self.web_url = web_url
         self.mailer = mailer
         self.warnings = []
 
@@ -215,6 +258,9 @@ class ReportEmailer(object):
         """Warn about test coverage regression."""
         module = strip(os.path.basename(filename), '.cover')
         self.warnings.append('%s: %s' % (module, message))
+        if self.web_url:
+            url = urljoin(self.web_url, module + '.html')
+            self.warnings.append('See ' + url + '\n')
 
     def send(self):
         """Send the warnings (if any)."""
@@ -222,7 +268,6 @@ class ReportEmailer(object):
             body = '\n'.join(self.warnings)
             self.mailer.send_email(self.from_addr, self.to_addr, self.subject,
                                    body)
-
 
 
 def selftest():
@@ -252,6 +297,9 @@ def main():
     parser.add_option('--subject', metavar='SUBJECT',
                       default='Unit test coverage regression',
                       help='set the email subject')
+    parser.add_option('--web-url', metavar='BASEURL', dest='web_url',
+                      help='include hyperlinks to HTML-ized coverage'
+                           ' reports at a given URL')
     parser.add_option('--selftest', help='run integrity tests',
                       action='store_true')
     opts, args = parser.parse_args()
@@ -262,7 +310,7 @@ def main():
         parser.error("wrong number of arguments")
     olddir, newdir = args
     if opts.email:
-        mailer = ReportEmailer(opts.sender, opts.email, opts.subject)
+        mailer = ReportEmailer(opts.sender, opts.email, opts.subject, opts.web_url)
         warnfunc = mailer.warn
     else:
         warnfunc = warn
