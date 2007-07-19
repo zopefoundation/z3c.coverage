@@ -1,0 +1,346 @@
+       #!/usr/bin/env python
+       ##############################################################################
+       #
+       # Copyright (c) 2007 Zope Foundation and Contributors.
+       # All Rights Reserved.
+       #
+       # This software is subject to the provisions of the Zope Public License,
+       # Version 2.1 (ZPL).  A copy of the ZPL should accompany this distribution.
+       # THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+       # WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+       # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+       # FOR A PARTICULAR PURPOSE.
+       #
+       ##############################################################################
+       """
+       Compare the test coverage between two versions.  The promary goal is to find
+       regressions in test coverage (newly added lines of code without tests, or
+       old lines of code that used to have tests but don't any more).
+       
+       Usage: coveragediff.py [options] old-dir new-dir
+       
+       The directories are expected to contain files named '<package>.<module>.cover'
+       with the format that Python's trace.py produces.
+    1: """
+       
+    1: import os
+    1: import re
+    1: import sys
+    1: import smtplib
+    1: import optparse
+    1: from email.MIMEText import MIMEText
+       
+       
+    1: try:
+    1:     any
+>>>>>> except NameError:
+           # python 2.4 compatibility
+>>>>>>     def any(list):
+               """Return True if bool(x) is True for any x in the iterable.
+       
+                   >>> any([1, 'yes', 0, None])
+                   True
+                   >>> any([0, None, ''])
+                   False
+                   >>> any([])
+                   False
+       
+               """
+>>>>>>         for item in list:
+>>>>>>             if item:
+>>>>>>                 return True
+>>>>>>         return False
+       
+       
+    1: def matches(string, list_of_regexes):
+           """Check whether a string matches any of a list of regexes.
+       
+               >>> matches('foo', map(re.compile, ['x', 'o']))
+               True
+               >>> matches('foo', map(re.compile, ['x', 'f$']))
+               False
+               >>> matches('foo', [])
+               False
+       
+           """
+    2:     return any(regex.search(string) for regex in list_of_regexes)
+       
+       
+    1: def filter_files(files, include=(), exclude=()):
+           """Filters a file list by considering only the include patterns, then
+           excluding exclude patterns.  Patterns are regular expressions.
+       
+           Examples:
+       
+               >>> filter_files(['ivija.food', 'ivija.food.tests', 'other.ivija'],
+               ...              include=['^ivija'], exclude=['tests'])
+               ['ivija.food']
+       
+               >>> filter_files(['ivija.food', 'ivija.food.tests', 'other.ivija'],
+               ...              exclude=['tests'])
+               ['ivija.food', 'other.ivija']
+       
+               >>> filter_files(['ivija.food', 'ivija.food.tests', 'other.ivija'],
+               ...              include=['^ivija'])
+               ['ivija.food', 'ivija.food.tests']
+       
+               >>> filter_files(['ivija.food', 'ivija.food.tests', 'other.ivija'])
+               ['ivija.food', 'ivija.food.tests', 'other.ivija']
+       
+           """
+    1:     if not include:
+>>>>>>         include = ['.'] # include everything by default
+    1:     if not exclude:
+>>>>>>         exclude = []    # exclude nothing by default
+    1:     include = map(re.compile, include)
+    1:     exclude = map(re.compile, exclude)
+    1:     return [fn for fn in files
+    1:             if matches(fn, include) and not matches(fn, exclude)]
+       
+       
+    1: def find_coverage_files(dir):
+           """Find all test coverage files in a given directory.
+       
+           The files are expected to end in '.cover'.  Weird filenames produced
+           by tracing "fake" code (like '<doctest ...>') are ignored.
+           """
+>>>>>>     return [fn for fn in os.listdir(dir)
+>>>>>>             if fn.endswith('.cover') and not fn.startswith('<')]
+       
+       
+    1: def filter_coverage_files(dir, include=(), exclude=()):
+           """Find test coverage files in a given directory matching given patterns.
+       
+           The files are expected to end in '.cover'.  Weird filenames produced
+           by tracing "fake" code (like '<doctest ...>') are ignored.
+       
+           Include/exclude patterns are regular expressions.  Include patterns
+           are considered first, then the results are trimmed by the exclude
+           patterns.
+           """
+>>>>>>     return filter_files(find_coverage_files(dir), include, exclude)
+       
+       
+    1: def warn(filename, message):
+           """Warn about test coverage regression.
+       
+               >>> warn('/tmp/z3c.somepkg.cover', '5 untested lines, ouch!')
+               z3c.somepkg: 5 untested lines, ouch!
+       
+           """
+>>>>>>     module = strip(os.path.basename(filename), '.cover')
+>>>>>>     print '%s: %s' % (module, message)
+       
+       
+    1: def compare_dirs(olddir, newdir, include=(), exclude=(), warn=warn):
+           """Compare two directories of coverage files."""
+>>>>>>     old_coverage_files = filter_coverage_files(olddir, include, exclude)
+>>>>>>     new_coverage_files = filter_coverage_files(newdir, include, exclude)
+       
+>>>>>>     old_coverage_set = set(old_coverage_files)
+>>>>>>     for fn in sorted(new_coverage_files):
+>>>>>>         if fn in old_coverage_files:
+>>>>>>             compare_file(os.path.join(olddir, fn),
+>>>>>>                          os.path.join(newdir, fn), warn=warn)
+               else:
+>>>>>>             new_file(os.path.join(newdir, fn), warn=warn)
+       
+       
+    1: def count_coverage(filename):
+           """Count the number of covered and uncovered lines in a file."""
+>>>>>>     covered = uncovered = 0
+>>>>>>     for line in file(filename):
+>>>>>>         if line.startswith('>>>>>>'):
+>>>>>>             uncovered += 1
+>>>>>>         elif len(line) >= 7 and not line.startswith(' '*7):
+>>>>>>             covered += 1
+>>>>>>     return covered, uncovered
+       
+       
+    1: def compare_file(oldfile, newfile, warn=warn):
+           """Compare two coverage files."""
+>>>>>>     old_covered, old_uncovered = count_coverage(oldfile)
+>>>>>>     new_covered, new_uncovered = count_coverage(newfile)
+>>>>>>     if new_uncovered > old_uncovered:
+>>>>>>         increase = new_uncovered - old_uncovered
+>>>>>>         warn(newfile, "%d new lines of untested code" % increase)
+       
+       
+    1: def new_file(newfile, warn=warn):
+           """Look for uncovered lines in a new coverage file."""
+>>>>>>     covered, uncovered = count_coverage(newfile)
+>>>>>>     if uncovered:
+>>>>>>         total = covered + uncovered
+>>>>>>         msg = "new file with %d lines of untested code (out of %d)" % (
+>>>>>>                     uncovered, total)
+>>>>>>         warn(newfile, msg)
+       
+       
+    1: def strip(string, suffix):
+           """Strip a suffix from a string if it exists:
+       
+               >>> strip('go bar a foobar', 'bar')
+               'go bar a foo'
+               >>> strip('go bar a foobar', 'baz')
+               'go bar a foobar'
+               >>> strip('allofit', 'allofit')
+               ''
+       
+           """
+    8:     if string.endswith(suffix):
+    8:         string = string[:-len(suffix)]
+    8:     return string
+       
+       
+    1: def urljoin(base, *suburls):
+           """Join base URL and zero or more subURLs.
+       
+           This function is best described by examples:
+       
+               >>> urljoin('http://example.com')
+               'http://example.com/'
+       
+               >>> urljoin('http://example.com/')
+               'http://example.com/'
+       
+               >>> urljoin('http://example.com', 'a', 'b/c', 'd')
+               'http://example.com/a/b/c/d'
+       
+               >>> urljoin('http://example.com/', 'a', 'b/c', 'd')
+               'http://example.com/a/b/c/d'
+       
+               >>> urljoin('http://example.com/a', 'b/c', 'd')
+               'http://example.com/a/b/c/d'
+       
+               >>> urljoin('http://example.com/a/', 'b/c', 'd')
+               'http://example.com/a/b/c/d'
+       
+           SubURLs should not contain trailing or leading slashes (with one exception:
+           the last subURL may have a trailing slash).  SubURLs should not be empty.
+           """
+    4:     if not base.endswith('/'):
+    2:         base += '/'
+    4:     return base + '/'.join(suburls)
+       
+       
+    2: class MailSender(object):
+    1:     """Send emails over SMTP"""
+       
+    1:     connection_class = smtplib.SMTP
+       
+    1:     def __init__(self, smtp_host='localhost', smtp_port=25):
+    2:         self.smtp_host = smtp_host
+    2:         self.smtp_port = smtp_port
+       
+    1:     def send_email(self, from_addr, to_addr, subject, body):
+               """Send an email."""
+               # Note that this won't handle non-ASCII characters correctly.
+               # See http://mg.pov.lt/blog/unicode-emails-in-python.html
+    1:         msg = MIMEText(body)
+    1:         if from_addr:
+    1:             msg['From'] = from_addr
+    1:         if to_addr:
+    1:             msg['To'] = to_addr
+    1:         msg['Subject'] = subject
+    1:         smtp = self.connection_class(self.smtp_host, self.smtp_port)
+    1:         smtp.sendmail(from_addr, to_addr, msg.as_string())
+    1:         smtp.quit()
+       
+       
+    2: class ReportPrinter(object):
+    1:     """Reporter to sys.stdout."""
+       
+    1:     def __init__(self, web_url=None):
+    2:         self.web_url = web_url
+       
+    1:     def warn(self, filename, message):
+               """Warn about test coverage regression."""
+    4:         module = strip(os.path.basename(filename), '.cover')
+    4:         print '%s: %s' % (module, message)
+    4:         if self.web_url:
+    2:             url = urljoin(self.web_url, module + '.html')
+    2:             print 'See ' + url
+    2:             print
+       
+       
+    2: class ReportEmailer(object):
+    1:     """Warning collector and emailer."""
+       
+    1:     def __init__(self, from_addr, to_addr, subject, web_url=None,
+    1:                  mailer=None):
+    3:         if not mailer:
+    1:             mailer = MailSender()
+    3:         self.from_addr = from_addr
+    3:         self.to_addr = to_addr
+    3:         self.subject = subject
+    3:         self.web_url = web_url
+    3:         self.mailer = mailer
+    3:         self.warnings = []
+       
+    1:     def warn(self, filename, message):
+               """Warn about test coverage regression."""
+    4:         module = strip(os.path.basename(filename), '.cover')
+    4:         self.warnings.append('%s: %s' % (module, message))
+    4:         if self.web_url:
+    2:             url = urljoin(self.web_url, module + '.html')
+    2:             self.warnings.append('See ' + url + '\n')
+       
+    1:     def send(self):
+               """Send the warnings (if any)."""
+    3:         if self.warnings:
+    2:             body = '\n'.join(self.warnings)
+    2:             self.mailer.send_email(self.from_addr, self.to_addr, self.subject,
+    2:                                    body)
+       
+       
+    1: def selftest():
+           """Run all unit tests in this module."""
+>>>>>>     import doctest
+>>>>>>     nfail, ntests = doctest.testmod()
+>>>>>>     if nfail == 0:
+>>>>>>         print "All %d tests passed." % ntests
+       
+       
+    1: def main():
+           """Parse command line arguments and do stuff."""
+>>>>>>     progname = os.path.basename(sys.argv[0])
+>>>>>>     parser = optparse.OptionParser("usage: %prog olddir newdir",
+>>>>>>                                    prog=progname)
+>>>>>>     parser.add_option('--include', metavar='REGEX',
+>>>>>>                       help='only consider files matching REGEX',
+>>>>>>                       action='append')
+>>>>>>     parser.add_option('--exclude', metavar='REGEX',
+>>>>>>                       help='ignore files matching REGEX',
+>>>>>>                       action='append')
+>>>>>>     parser.add_option('--email', metavar='ADDR',
+>>>>>>                       help='send the report to a given email address'
+                                  ' (only if regressions were found)',)
+>>>>>>     parser.add_option('--from', metavar='ADDR', dest='sender',
+>>>>>>                       help='set the email sender address')
+>>>>>>     parser.add_option('--subject', metavar='SUBJECT',
+>>>>>>                       default='Unit test coverage regression',
+>>>>>>                       help='set the email subject')
+>>>>>>     parser.add_option('--web-url', metavar='BASEURL', dest='web_url',
+>>>>>>                       help='include hyperlinks to HTML-ized coverage'
+                                  ' reports at a given URL')
+>>>>>>     parser.add_option('--selftest', help='run integrity tests',
+>>>>>>                       action='store_true')
+>>>>>>     opts, args = parser.parse_args()
+>>>>>>     if opts.selftest:
+>>>>>>         selftest()
+>>>>>>         return
+>>>>>>     if len(args) != 2:
+>>>>>>         parser.error("wrong number of arguments")
+>>>>>>     olddir, newdir = args
+>>>>>>     if opts.email:
+>>>>>>         reporter = ReportEmailer(opts.sender, opts.email, opts.subject, opts.web_url)
+           else:
+>>>>>>         reporter = ReportPrinter(opts.web_url)
+>>>>>>     compare_dirs(olddir, newdir, include=opts.include, exclude=opts.exclude,
+>>>>>>                  warn=reporter.warn)
+>>>>>>     if opts.email:
+>>>>>>         mailer.send()
+       
+       
+    1: if __name__ == '__main__':
+>>>>>>     main()

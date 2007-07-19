@@ -9,6 +9,58 @@ This document describes the internals of ``coveragediff.py``.  It also acts as
 a test suite.
 
 
+Locating coverage files
+-----------------------
+
+The function ``find_coverage_files`` looks for plain-text coverage reports
+in a given directory
+
+    >>> import z3c.coverage, os
+    >>> sampleinput_dir = os.path.join(z3c.coverage.__path__[0], 'sampleinput')
+
+    >>> from z3c.coverage.coveragediff import find_coverage_files
+    >>> for filename in sorted(find_coverage_files(sampleinput_dir)):
+    ...     print filename
+    z3c.coverage.__init__.cover
+    z3c.coverage.coveragediff.cover
+    z3c.coverage.coveragereport.cover
+    z3c.coverage.tests.cover
+
+The function ``filter_coverage_files`` looks for plain-text coverage reports
+ in a given location that match a set of include and exclude patterns
+
+    >>> from z3c.coverage.coveragediff import filter_coverage_files
+    >>> for filename in sorted(filter_coverage_files(sampleinput_dir)):
+    ...     print filename
+    z3c.coverage.__init__.cover
+    z3c.coverage.coveragediff.cover
+    z3c.coverage.coveragereport.cover
+    z3c.coverage.tests.cover
+
+    >>> for filename in sorted(filter_coverage_files(sampleinput_dir,
+    ...                                              include=['diff'])):
+    ...     print filename
+    z3c.coverage.coveragediff.cover
+
+The patterns are regular expressions
+
+    >>> for filename in sorted(filter_coverage_files(sampleinput_dir,
+    ...                                              exclude=['^z'])):
+    ...     print filename
+
+
+Parsing coverage files
+----------------------
+
+The function ``count_coverage`` reads a plain-text coverage reports and
+returns two numbers: the number of tested code lines and the number of
+untested code lines.
+
+    >>> from z3c.coverage.coveragediff import count_coverage
+    >>> filename = os.path.join(sampleinput_dir, 'z3c.coverage.tests.cover')
+    >>> count_coverage(filename)
+    (10, 3)
+
 
 MailSender
 ----------

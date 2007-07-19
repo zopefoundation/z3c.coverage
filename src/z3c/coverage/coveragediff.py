@@ -122,7 +122,12 @@ def filter_coverage_files(dir, include=(), exclude=()):
 
 
 def warn(filename, message):
-    """Warn about test coverage regression."""
+    """Warn about test coverage regression.
+
+        >>> warn('/tmp/z3c.somepkg.cover', '5 untested lines, ouch!')
+        z3c.somepkg: 5 untested lines, ouch!
+
+    """
     module = strip(os.path.basename(filename), '.cover')
     print '%s: %s' % (module, message)
 
