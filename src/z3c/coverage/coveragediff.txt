@@ -5,8 +5,61 @@ coveragediff
 coverage reports.  It reports regressions, that is, increases in the number
 of untested code.
 
-This document describes the internals of ``coveragediff``.  It also acts as
+This document describes the internals of ``coveragediff.py``.  It also acts as
 a test suite.
+
+
+
+MailSender
+----------
+
+The ``MailSender`` class is responsible for assembling an RFC-2822 email
+message and handing it off to an SMTP server.
+
+    >>> from z3c.coverage.coveragediff import MailSender
+    >>> mailer = MailSender('smtp.example.com', 25)
+
+Since it wouldn't be a good idea to actually send emails from the test suite,
+we'll use a stub SMTP connection class.
+
+    >>> mailer.connection_class = None
+    >>> class FakeSMTP(object):
+    ...     def __init__(self, host, port):
+    ...         print "Connecting to %s:%s" % (host, port)
+    ...     def sendmail(self, sender, recipients, body):
+    ...         from smtplib import quoteaddr
+    ...         print "MAIL FROM:%s" % quoteaddr(sender)
+    ...         if isinstance(recipients, basestring):
+    ...             recipients = [recipients]
+    ...         for recipient in recipients:
+    ...             print "RCPT TO:%s" % quoteaddr(recipient)
+    ...         print "DATA"
+    ...         print body
+    ...         print "."
+    ...     def quit(self):
+    ...         print "QUIT"
+    >>> mailer.connection_class = FakeSMTP
+
+Here's how you send an email:
+
+    >>> mailer.send_email('Some Bot <bot@example.com>',
+    ...                   'Maintainer <m@example.com>',
+    ...                   'Test coverage regressions',
+    ...                   'You broke the tests completely.  Have a nice day.')
+    Connecting to smtp.example.com:25
+    MAIL FROM:<bot@example.com>
+    RCPT TO:<m@example.com>
+    DATA
+    Content-Type: text/plain; charset="us-ascii"
+    MIME-Version: 1.0
+    Content-Transfer-Encoding: 7bit
+    From: Some Bot <bot@example.com>
+    To: Maintainer <m@example.com>
+    Subject: Test coverage regressions
+    <BLANKLINE>
+    You broke the tests completely.  Have a nice day.
+    .
+    QUIT
 
 
 ReportPrinter

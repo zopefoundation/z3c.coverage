@@ -221,6 +221,8 @@ def urljoin(base, *suburls):
 class MailSender(object):
     """Send emails over SMTP"""
 
+    connection_class = smtplib.SMTP
+
     def __init__(self, smtp_host='localhost', smtp_port=25):
         self.smtp_host = smtp_host
         self.smtp_port = smtp_port
@@ -235,7 +237,7 @@ class MailSender(object):
         if to_addr:
             msg['To'] = to_addr
         msg['Subject'] = subject
-        smtp = smtplib.SMTP(self.smtp_host, self.smtp_port)
+        smtp = self.connection_class(self.smtp_host, self.smtp_port)
         smtp.sendmail(from_addr, to_addr, msg.as_string())
         smtp.quit()
 
