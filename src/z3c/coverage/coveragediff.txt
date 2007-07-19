@@ -415,3 +415,30 @@ emulators like GNOME Terminal).
     See http://example.com/coverage/z3c.coverage.fakenewmodule.html
     <BLANKLINE>
 
+
+Reports via email
+~~~~~~~~~~~~~~~~~
+
+You can ask for the output to be emailed instead of being printed to stdout.
+
+    >>> MailSender.connection_class = FakeSMTP
+    >>> run(['coveragediff', sampleinput_dir, another_dir,
+    ...      '--email', 'Project List <dev@example.com>',
+    ...      '--from', 'Coverage Daemon <root@example.com>'])
+    Connecting to localhost:25
+    MAIL FROM:<root@example.com>
+    RCPT TO:<dev@example.com>
+    DATA
+    Content-Type: text/plain; charset="us-ascii"
+    MIME-Version: 1.0
+    Content-Transfer-Encoding: 7bit
+    From: Coverage Daemon <root@example.com>
+    To: Project List <dev@example.com>
+    Subject: Unit test coverage regression
+    <BLANKLINE>
+    z3c.coverage.coveragediff: 36 new lines of untested code
+    z3c.coverage.fakenewmodule: new file with 3 lines of untested code (out of 13)
+    .
+    QUIT
+
+

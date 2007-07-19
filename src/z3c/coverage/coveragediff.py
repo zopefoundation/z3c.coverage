@@ -326,7 +326,7 @@ def main():
     compare_dirs(olddir, newdir, include=opts.include, exclude=opts.exclude,
                  warn=reporter.warn)
     if opts.email:
-        mailer.send()
+        reporter.send()
 
 
 if __name__ == '__main__':
