@@ -134,9 +134,12 @@ message and handing it off to an SMTP server.
     >>> mailer = MailSender('smtp.example.com', 25)
 
 Since it wouldn't be a good idea to actually send emails from the test suite,
-we'll use a stub SMTP connection class.
+we'll use a stub SMTP connection class.  Also, let's hide the real one as
+an insurance, so that even if our stub fails, the rest of the tests won't
+send any real emails:
 
-    >>> mailer.connection_class = None
+    >>> MailSender.connection_class = None
+
     >>> class FakeSMTP(object):
     ...     def __init__(self, host, port):
     ...         print "Connecting to %s:%s" % (host, port)
