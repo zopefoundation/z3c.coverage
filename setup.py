@@ -35,7 +35,7 @@ setup (
     license = "ZPL 2.1",
     keywords = "zope3 test coverage html",
     classifiers = [
-        'Development Status :: 5 Production/Stable',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Zope Public License',
