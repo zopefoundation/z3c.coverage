@@ -1,9 +1,29 @@
-=======
 CHANGES
-=======
+-------
 
+1.0.1 (2007-09-26)
+~~~~~~~~~~~~~~~~~~
 
-Version 1.0.0 (2007-09-26)
---------------------------
+- Fixed meta-data.
 
-* Initial version.
+1.0.0 (2007-09-26)
+~~~~~~~~~~~~~~~~~~
+
+- First public release.
+
+0.2.1
+~~~~~
+
+- Added the ``--web`` option to ``coveragediff``.
+- Added a test suite.
+
+0.2.0
+~~~~~
+
+- Added ``coveragediff.py``.
+
+0.1.0
+~~~~~
+
+- Initial release of ``coveragereport.py``.
+
