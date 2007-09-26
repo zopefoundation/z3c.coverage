@@ -23,12 +23,14 @@ def read(*rnames):
 
 setup (
     name='z3c.coverage',
-    version='0.2.1',
+    version='1.0.0',
     author = "Zope Community",
     author_email = "zope3-dev@zope.org",
     description = "A script to visualize coverage reports via HTML",
     long_description=(
         read('README.txt')
+        + '\n\n' +
+        read('CHANGES.txt')
         ),
     license = "ZPL 2.1",
     keywords = "zope3 test coverage html",
@@ -42,7 +44,7 @@ setup (
         'Operating System :: OS Independent',
         'Topic :: Internet :: WWW/HTTP',
         'Framework :: Zope3'],
-    url = 'http://svn.zope.org/z3c.coverage',
+    url = 'http://pypi.python.org/pypi/z3c.coverage',
     packages = find_packages('src'),
     include_package_data = True,
     package_dir = {'':'src'},
@@ -58,6 +60,5 @@ setup (
         coverage = z3c.coverage.coveragereport:main
         coveragediff = z3c.coverage.coveragediff:main
         """,
-    dependency_links = ['http://download.zope.org/distribution'],
     zip_safe = False,
     )
