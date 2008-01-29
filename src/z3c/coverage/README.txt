@@ -35,10 +35,10 @@ Looking at the output directory, we now see several files:
 
 
 API Tests
-=========
+---------
 
 ``CoverageNode`` Class
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 This class represents a node in the source tree. Simple modules are considered
 leaves and do not have children. Let's create a node for the `z3c` namespace
@@ -87,7 +87,7 @@ Finally, we also can get a nice output:
 
 
 `index_to_filename()` function
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Takes an indexed Python path and produces the cover filename for it:
 
@@ -98,7 +98,7 @@ Takes an indexed Python path and produces the cover filename for it:
   ''
 
 `index_to_nice_name()` function
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Takes an indexed Python path and produces a nice "human-readable" string:
 
@@ -110,7 +110,7 @@ Takes an indexed Python path and produces a nice "human-readable" string:
 
 
 `index_to_name()` function
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Takes an indexed Python path and produces a "human-readable" string:
 
@@ -122,7 +122,7 @@ Takes an indexed Python path and produces a "human-readable" string:
 
 
 `percent_to_colour()` function
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Given a coverage percentage, this function returns a color to represent the
 coverage:
@@ -138,7 +138,7 @@ coverage:
 
 
 `get_svn_revision()` function
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Given a path, the function tries to determine the revision number of the
 file. If it fails, "UNKNOWN" is returned:
@@ -152,7 +152,7 @@ file. If it fails, "UNKNOWN" is returned:
 
 
 `syntax_highlight()` function
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This function takes a cover file, converts it to a nicely colored HTML output:
 
@@ -177,7 +177,7 @@ If the highlighing command is not available, no coloration is done:
 
 
 `coveragereport.py` is a script
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For convenience you can download the ``coveragereport.py`` module and run it
 as a script:

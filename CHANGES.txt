@@ -1,8 +1,9 @@
+=======
 CHANGES
--------
+=======
 
 1.1.0 (2008-01-29)
-~~~~~~~~~~~~~~~~~~
+------------------
 
 - Feature: The ``main()`` coverage report function now accepts the arguments
   of the script as a function argument, making it easier to configure the
@@ -18,32 +19,32 @@ CHANGES
 
 
 1.0.1 (2007-09-26)
-~~~~~~~~~~~~~~~~~~
+------------------
 
 - Bug: Fixed meta-data.
 
 
 1.0.0 (2007-09-26)
-~~~~~~~~~~~~~~~~~~
+------------------
 
 - First public release.
 
 
 0.2.1
-~~~~~
+-----
 
 - Feature: Added the ``--web`` option to ``coveragediff``.
 - Feature: Added a test suite.
 
 
 0.2.0
-~~~~~
+-----
 
 - Feature: Added ``coveragediff.py``.
 
 
 0.1.0
-~~~~~
+-----
 
 - Initial release of ``coveragereport.py``.
 

@@ -33,7 +33,9 @@ setup (
         'Detailed Documentation\n'
         '**********************'
         + '\n\n' +
-        read('src', 'z3c', 'formui', 'README.txt')
+        read('src', 'z3c', 'coverage', 'README.txt')
+        + '\n\n' +
+        read('src', 'z3c', 'coverage', 'coveragediff.txt')
         + '\n\n' +
         read('CHANGES.txt')
         ),
