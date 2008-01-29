@@ -23,12 +23,17 @@ def read(*rnames):
 
 setup (
     name='z3c.coverage',
-    version='1.0.1',
+    version='1.1.0',
     author = "Zope Community",
     author_email = "zope3-dev@zope.org",
     description = "A script to visualize coverage reports via HTML",
     long_description=(
         read('README.txt')
+        + '\n\n' +
+        'Detailed Documentation\n'
+        '**********************'
+        + '\n\n' +
+        read('src', 'z3c', 'formui', 'README.txt')
         + '\n\n' +
         read('CHANGES.txt')
         ),

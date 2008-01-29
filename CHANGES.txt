@@ -1,26 +1,46 @@
 CHANGES
 -------
 
+1.1.0 (2008-01-29)
+~~~~~~~~~~~~~~~~~~
+
+- Feature: The ``main()`` coverage report function now accepts the arguments
+  of the script as a function argument, making it easier to configure the
+  script from buildout.
+
+- Feature: When the report directory does not exist, the report generator
+  creates it for you.
+
+- Feature: Eat your own dog food by creating a buildout that can create
+  coverage reports.
+
+- Bug: Improved the test coverage to 100%.
+
+
 1.0.1 (2007-09-26)
 ~~~~~~~~~~~~~~~~~~
 
-- Fixed meta-data.
+- Bug: Fixed meta-data.
+
 
 1.0.0 (2007-09-26)
 ~~~~~~~~~~~~~~~~~~
 
 - First public release.
 
+
 0.2.1
 ~~~~~
 
-- Added the ``--web`` option to ``coveragediff``.
-- Added a test suite.
+- Feature: Added the ``--web`` option to ``coveragediff``.
+- Feature: Added a test suite.
+
 
 0.2.0
 ~~~~~
 
-- Added ``coveragediff.py``.
+- Feature: Added ``coveragediff.py``.
+
 
 0.1.0
 ~~~~~

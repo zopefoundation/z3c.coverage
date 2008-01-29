@@ -15,10 +15,14 @@ def test_suite():
                 (re.compile('^options:', re.MULTILINE), 'Options:'),
                                            ])
     return unittest.TestSuite([
-                doctest.DocFileSuite('coveragediff.txt', checker=checker),
-                doctest.DocTestSuite('z3c.coverage.coveragediff'),
-                doctest.DocTestSuite('z3c.coverage.coveragereport'),
-                               ])
+        doctest.DocFileSuite(
+            'README.txt', checker=checker,
+            optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
+            ),
+        doctest.DocFileSuite('coveragediff.txt', checker=checker),
+        doctest.DocTestSuite('z3c.coverage.coveragediff'),
+        doctest.DocTestSuite('z3c.coverage.coveragereport'),
+        ])
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')

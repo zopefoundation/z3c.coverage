@@ -42,6 +42,9 @@ import datetime
 import cgi
 
 
+HIGHLIGHT_COMMAND = ('enscript -q --footer --header -h --language=html'
+                     ' --highlight=python --color -o - "%s"')
+
 class CoverageNode(dict):
     """Tree node.
 
@@ -115,8 +118,8 @@ def filename_to_list(filename):
 
     One example is worth a thousand descriptions:
 
-        >>> filename_to_list('schooltool.app.__init__.cover')
-        ['schooltool', 'app', '__init__']
+        >>> filename_to_list('z3c.coverage.__init__.cover')
+        ['z3c', 'coverage', '__init__']
 
     """
     return filename.split('.')[:-1]
@@ -290,7 +293,9 @@ def generate_html(output_filename, tree, my_index, info, path, footer=""):
         file_path = os.path.join(path, index_to_filename(my_index))
         text = syntax_highlight(file_path)
         def color_uncov(line):
-            if '&gt;&gt;&gt;&gt;&gt;&gt;' in line:
+            # The line must start with the missing line indicator or some HTML
+            # was put in front of it.
+            if line.startswith('&gt;'*6) or '>'+'&gt;'*6 in line:
                 return ('<div class="notcovered">%s</div>'
                         % line.rstrip('\n'))
             return line
@@ -303,8 +308,7 @@ def generate_html(output_filename, tree, my_index, info, path, footer=""):
 def syntax_highlight(filename):
     """Return HTML with syntax-highlighted Python code from a file."""
     # XXX can get painful if filenames contain unsafe characters
-    pipe = os.popen('enscript -q --footer --header -h --language=html'
-                    ' --highlight=python --color -o - "%s"' % filename,
+    pipe = os.popen(HIGHLIGHT_COMMAND % filename,
                     'r')
     text = pipe.read()
     if pipe.close():
@@ -360,8 +364,20 @@ def generate_overall_html_from_tree(tree, output_filename, footer=""):
     html.close()
 
 
+def create_report_path(report_path):
+    report_path = os.path.abspath(report_path)
+    missing_dirs = []
+    while not os.path.exists(report_path):
+        report_path, missing_dir = os.path.split(report_path)
+        missing_dirs.append(missing_dir)
+    while missing_dirs:
+        report_path = os.path.join(report_path, missing_dirs.pop())
+        os.mkdir(report_path)
+
+
 def make_coverage_reports(path, report_path):
     """Convert reports from ``path`` into HTML files in ``report_path``."""
+    create_report_path(report_path)
     def filter_fn(filename):
         return (filename.endswith('.cover') and
                 'test' not in filename and
@@ -372,8 +388,8 @@ def make_coverage_reports(path, report_path):
     timestamp = str(datetime.datetime.utcnow())+"Z"
     footer = "Generated for revision %s on %s" % (rev, timestamp)
     generate_htmls_from_tree(tree, path, report_path, footer)
-    generate_overall_html_from_tree(tree, os.path.join(report_path,
-                                                       'all.html'), footer)
+    generate_overall_html_from_tree(
+        tree, os.path.join(report_path, 'all.html'), footer)
 
 
 def get_svn_revision(path):
@@ -384,16 +400,21 @@ def get_svn_revision(path):
     return rev
 
 
-def main():
+def main(args=None):
     """Process command line arguments and produce HTML coverage reports."""
-    if len(sys.argv) > 1:
-        path = sys.argv[1]
+    if args is None:
+        args = sys.argv[1:]
+
+    if len(args) > 0:
+        path = args[0]
     else:
         path = 'coverage'
-    if len(sys.argv) > 2:
-        report_path = sys.argv[2]
+
+    if len(args) > 1:
+        report_path = args[1]
     else:
         report_path = 'coverage/reports'
+
     make_coverage_reports(path, report_path)
 
 
