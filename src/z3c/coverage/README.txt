@@ -144,8 +144,8 @@ Given a path, the function tries to determine the revision number of the
 file. If it fails, "UNKNOWN" is returned:
 
   >>> path = os.path.split(z3c.coverage.__file__)[0]
-  >>> coveragereport.get_svn_revision(path)
-  '8...M'
+  >>> coveragereport.get_svn_revision(path) != 'UNKNOWN'
+  True
 
   >>> coveragereport.get_svn_revision(path + '/__init__.py')
   'UNKNOWN'

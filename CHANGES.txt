@@ -2,6 +2,12 @@
 CHANGES
 =======
 
+1.1.1 (2008-01-31)
+------------------
+
+- Bug: When the package was released, the test which tests the availability of
+  an SVN revision number failed. Made the test more reliable.
+
 1.1.0 (2008-01-29)
 ------------------
 
