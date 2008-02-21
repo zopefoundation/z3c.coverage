@@ -386,6 +386,8 @@ def filter_fn(filename):
         False
         >>> filter_fn('z3c.coverage.ftests.test_bar.cover')
         False
+        >>> filter_fn('z3c.coverage.testing.cover')
+        True
         >>> filter_fn('something-unrelated.txt')
         False
         >>> filter_fn('<doctest something-useless.cover')
@@ -393,7 +395,7 @@ def filter_fn(filename):
 
     """
     return (filename.endswith('.cover') and
-            'test' not in filename and
+            'tests' not in filename and
             not filename.startswith('<'))
 
 

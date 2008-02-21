@@ -7,6 +7,8 @@ CHANGES
 
 - Bug: sort the results of os.listdir() in README.txt to avoid nondeterministic
   failures.
+- Bug: the logic for ignoring unit and functional test modules also used to
+  ignore modules and packages called 'testing'.
 
 1.1.1 (2008-01-31)
 ------------------
