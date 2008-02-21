@@ -242,7 +242,7 @@ def print_table_row(html, node, file_index):
 
 HEADER = """
     <html>
-      <head><title>Unit test coverage for %(name)s</title>
+      <head><title>Test coverage for %(name)s</title>
       <style type="text/css">
         a {text-decoration: none; display: block; padding-right: 1em;}
         a:hover {background: #EFA;}
@@ -251,7 +251,7 @@ HEADER = """
         .footer {margin: 2em; font-size: small; color: gray;}
       </style>
       </head>
-      <body><h1>Unit test coverage for %(name)s</h1>
+      <body><h1>Test coverage for %(name)s</h1>
       <table>
     """
 

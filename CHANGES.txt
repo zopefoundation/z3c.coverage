@@ -9,6 +9,8 @@ CHANGES
   failures.
 - Bug: the logic for ignoring unit and functional test modules also used to
   ignore modules and packages called 'testing'.
+- Change "Unit test coverage" to "Test coverage" in the title -- it works
+  perfectly fine for functional tests too.
 
 1.1.1 (2008-01-31)
 ------------------
