@@ -25,12 +25,12 @@ We can now simply create the coverage report as follows:
 
 Looking at the output directory, we now see several files:
 
-  >>> print '\n'.join(os.listdir(outputDir))
+  >>> print '\n'.join(sorted(os.listdir(outputDir)))
   all.html
-  z3c.coverage.coveragereport.html
-  z3c.coverage.coveragediff.html
-  z3c.coverage.html
   z3c.coverage.__init__.html
+  z3c.coverage.coveragediff.html
+  z3c.coverage.coveragereport.html
+  z3c.coverage.html
   z3c.html
 
 

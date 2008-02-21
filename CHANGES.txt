@@ -2,6 +2,12 @@
 CHANGES
 =======
 
+(unreleased)
+------------
+
+- Bug: sort the results of os.listdir() in README.txt to avoid nondeterministic
+  failures.
+
 1.1.1 (2008-01-31)
 ------------------
 
