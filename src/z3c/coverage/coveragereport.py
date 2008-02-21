@@ -375,13 +375,31 @@ def create_report_path(report_path):
         os.mkdir(report_path)
 
 
+def filter_fn(filename):
+    """Filter interesting coverage files.
+    
+        >>> filter_fn('z3c.coverage.__init__.cover')
+        True
+        >>> filter_fn('z3c.coverage.tests.cover')
+        False
+        >>> filter_fn('z3c.coverage.tests.test_foo.cover')
+        False
+        >>> filter_fn('z3c.coverage.ftests.test_bar.cover')
+        False
+        >>> filter_fn('something-unrelated.txt')
+        False
+        >>> filter_fn('<doctest something-useless.cover')
+        False
+
+    """
+    return (filename.endswith('.cover') and
+            'test' not in filename and
+            not filename.startswith('<'))
+
+
 def make_coverage_reports(path, report_path):
     """Convert reports from ``path`` into HTML files in ``report_path``."""
     create_report_path(report_path)
-    def filter_fn(filename):
-        return (filename.endswith('.cover') and
-                'test' not in filename and
-                not filename.startswith('<'))
     filelist = get_file_list(path, filter_fn)
     tree = create_tree(filelist, path)
     rev = get_svn_revision(os.path.join(path, os.path.pardir))
