@@ -377,7 +377,7 @@ def create_report_path(report_path):
 
 def filter_fn(filename):
     """Filter interesting coverage files.
-    
+
         >>> filter_fn('z3c.coverage.__init__.cover')
         True
         >>> filter_fn('z3c.coverage.tests.cover')
@@ -388,15 +388,19 @@ def filter_fn(filename):
         False
         >>> filter_fn('z3c.coverage.testing.cover')
         True
+        >>> filter_fn('z3c.coverage.testname.cover')
+        True
         >>> filter_fn('something-unrelated.txt')
         False
         >>> filter_fn('<doctest something-useless.cover')
         False
 
     """
+    parts = filename.split('.')
     return (filename.endswith('.cover') and
-            'tests' not in filename and
-            not filename.startswith('<'))
+            not filename.startswith('<') and
+            'tests' not in parts and
+            'ftests' not in parts)
 
 
 def make_coverage_reports(path, report_path):

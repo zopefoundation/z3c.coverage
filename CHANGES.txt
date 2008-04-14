@@ -2,21 +2,29 @@
 CHANGES
 =======
 
-(unreleased)
-------------
+1.1.2 (2008-04-14)
+------------------
 
-- Bug: sort the results of os.listdir() in README.txt to avoid nondeterministic
-  failures.
-- Bug: the logic for ignoring unit and functional test modules also used to
-  ignore modules and packages called 'testing'.
+- Bug: When a package path contained anywhere the word "test", it was ignored
+  from the coverage report. The intended behavior, however, was to ignore
+  files that relate to setting up tests.
+
+- Bug: Sort the results of `os.listdir()` in `README.txt` to avoid
+  non-deterministic failures.
+
+- Bug: The logic for ignoring unit and functional test modules also used to
+  ignore modules and packages called `testing`.
+
 - Change "Unit test coverage" to "Test coverage" in the title -- it works
   perfectly fine for functional tests too.
+
 
 1.1.1 (2008-01-31)
 ------------------
 
 - Bug: When the package was released, the test which tests the availability of
   an SVN revision number failed. Made the test more reliable.
+
 
 1.1.0 (2008-01-29)
 ------------------

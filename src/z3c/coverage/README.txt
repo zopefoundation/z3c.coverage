@@ -75,7 +75,7 @@ We can also ask for the percentile:
   >>> initNode.percent
   100
 
-We can ask for the amoutn of uncovered lines:
+We can ask for the amount of uncovered lines:
 
   >>> z3cNode.uncovered
   94
