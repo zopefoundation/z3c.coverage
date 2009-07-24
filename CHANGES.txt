@@ -2,6 +2,14 @@
 CHANGES
 =======
 
+1.1.3 (2009-07-24)
+------------------
+
+- Bug: Doctest did not normalize the whitespace in `coveragediff.txt`. For
+  some reason it passes while testing independently, but when running all
+  tests, it failed.
+
+
 1.1.2 (2008-04-14)
 ------------------
 

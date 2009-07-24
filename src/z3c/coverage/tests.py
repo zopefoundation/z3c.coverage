@@ -19,9 +19,14 @@ def test_suite():
             'README.txt', checker=checker,
             optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
             ),
-        doctest.DocFileSuite('coveragediff.txt', checker=checker),
-        doctest.DocTestSuite('z3c.coverage.coveragediff'),
-        doctest.DocTestSuite('z3c.coverage.coveragereport'),
+        doctest.DocFileSuite(
+            'coveragediff.txt', checker=checker,
+            optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
+            ),
+        doctest.DocTestSuite(
+            'z3c.coverage.coveragediff'),
+        doctest.DocTestSuite(
+            'z3c.coverage.coveragereport'),
         ])
 
 if __name__ == '__main__':
