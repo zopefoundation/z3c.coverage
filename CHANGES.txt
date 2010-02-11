@@ -2,7 +2,7 @@
 CHANGES
 =======
 
-1.2.0 (unreleased)
+1.2.0 (2010-02-11)
 ------------------
 
 - Rename the ``coverage`` script to ``coveragereport``, to avoid name clashes
