@@ -2,10 +2,12 @@
 CHANGES
 =======
 
-1.1.4 (unreleased)
+1.2.0 (unreleased)
 ------------------
 
-- ...
+- Rename the ``coverage`` script to ``coveragereport``, to avoid name clashes
+  with Ned Batchelder's excellent coverage.py.
+
 
 1.1.3 (2009-07-24)
 ------------------

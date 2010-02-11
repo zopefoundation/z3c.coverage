@@ -269,7 +269,7 @@ Links to web pages
 ~~~~~~~~~~~~~~~~~~
 
 Report emailer can also include links to web pages with the coverage reports
-(e.g. the ones you can get from the ``coverage`` tool distributed with
+(e.g. the ones you can get from the ``coveragereport`` tool distributed with
 ``z3c.coverage``).
 
     >>> emailer = ReportEmailer('Some Bot <bot@example.com>',
