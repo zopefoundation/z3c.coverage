@@ -25,7 +25,6 @@ with the format that Python's trace.py produces.
 
 import os
 import re
-import sys
 import smtplib
 import optparse
 from email.MIMEText import MIMEText
@@ -295,9 +294,7 @@ class ReportEmailer(object):
 
 def main():
     """Parse command line arguments and do stuff."""
-    progname = os.path.basename(sys.argv[0])
-    parser = optparse.OptionParser("usage: %prog [options] olddir newdir",
-                                   prog=progname)
+    parser = optparse.OptionParser("usage: %prog [options] olddir newdir")
     parser.add_option('--include', metavar='REGEX',
                       help='only consider files matching REGEX',
                       action='append')

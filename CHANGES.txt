@@ -5,7 +5,7 @@ CHANGES
 1.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- The ``coveragereport`` script now accepts ``--help``.
 
 
 1.2.0 (2010-02-11)

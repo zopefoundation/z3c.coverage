@@ -14,7 +14,7 @@
 ##############################################################################
 """Coverage Report
 
-Convert unit test coverage reports to HTML.
+Convert trace.py coverage reports to HTML.
 
 Usage: coveragereport.py [report-directory [output-directory]]
 
@@ -30,7 +30,8 @@ source file line with a 7 character wide prefix.  The prefix is one of
   '>>>>>> ' if this line was never executed
 
 You can produce such files with the Zope test runner by specifying
-``--coverage`` on the command line.
+``--coverage`` on the command line, or, more generally, by using the
+``trace`` module in the standard library.
 
 $Id$
 """
@@ -41,6 +42,7 @@ import os
 import datetime
 import cgi
 import subprocess
+import optparse
 
 
 HIGHLIGHT_COMMAND = ['enscript', '-q', '--footer', '--header', '-h',
@@ -432,8 +434,18 @@ def get_svn_revision(path):
 
 def main(args=None):
     """Process command line arguments and produce HTML coverage reports."""
+
+    parser = optparse.OptionParser(
+        "usage: %prog [options] [inputdir [outputdir]]",
+        description=
+            'Converts trace.py coverage reports to HTML.'
+            '  If the input directory is omitted, it defaults to ./coverage.'
+            '  If the output directory is omitted, it defaults to'
+            ' ./coverage/report.')
+
     if args is None:
         args = sys.argv[1:]
+    opts, args = parser.parse_args(list(args))
 
     if len(args) > 0:
         path = args[0]
@@ -444,6 +456,9 @@ def main(args=None):
         report_path = args[1]
     else:
         report_path = 'coverage/reports'
+
+    if len(args) > 2:
+        parser.error("too many arguments")
 
     make_coverage_reports(path, report_path)
 
