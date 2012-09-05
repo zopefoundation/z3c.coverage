@@ -370,14 +370,8 @@ def generate_overall_html_from_tree(tree, output_filename, footer=""):
 
 
 def create_report_path(report_path):
-    report_path = os.path.abspath(report_path)
-    missing_dirs = []
-    while not os.path.exists(report_path):
-        report_path, missing_dir = os.path.split(report_path)
-        missing_dirs.append(missing_dir)
-    while missing_dirs:
-        report_path = os.path.join(report_path, missing_dirs.pop())
-        os.mkdir(report_path)
+    if not os.path.exists(report_path):
+        os.makedirs(report_path)
 
 
 def filter_fn(filename):
