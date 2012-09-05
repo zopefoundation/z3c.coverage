@@ -3,8 +3,11 @@
 Test suite for z3c.coverage
 """
 
-import unittest, re
-from zope.testing import doctest, renormalizing
+import unittest
+import doctest
+import re
+
+from zope.testing import renormalizing
 
 
 def test_suite():
