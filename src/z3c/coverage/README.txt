@@ -147,7 +147,7 @@ coverage:
 Given a path, the function tries to determine the revision number of the
 file. If it fails, "UNKNOWN" is returned:
 
-  >>> path = os.path.split(z3c.coverage.__file__)[0]
+  >>> path = os.path.dirname(z3c.coverage.__file__)
   >>> coveragereport.get_svn_revision(path) != 'UNKNOWN'
   True
 
@@ -161,7 +161,7 @@ file. If it fails, "UNKNOWN" is returned:
 This function takes a cover file, converts it to a nicely colored HTML output:
 
   >>> filename = os.path.join(
-  ...     os.path.split(z3c.coverage.__file__)[0], '__init__.py')
+  ...     os.path.dirname(z3c.coverage.__file__), '__init__.py')
 
   >>> print coveragereport.syntax_highlight(filename)
   ... # this will fail if you don't have enscript in your $PATH
