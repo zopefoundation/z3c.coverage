@@ -404,17 +404,23 @@ def filter_fn(filename):
             'ftests' not in parts)
 
 
-def make_coverage_reports(path, report_path):
+def make_coverage_reports(path, report_path, verbose=True):
     """Convert reports from ``path`` into HTML files in ``report_path``."""
     create_report_path(report_path)
     filelist = get_file_list(path, filter_fn)
+    if verbose:
+        print "Loading coverage reports from %s" % path
     tree = create_tree(filelist, path)
+    if verbose:
+        print tree
     rev = get_svn_revision(os.path.join(path, os.path.pardir))
     timestamp = str(datetime.datetime.utcnow())+"Z"
     footer = "Generated for revision %s on %s" % (rev, timestamp)
     generate_htmls_from_tree(tree, path, report_path, footer)
     generate_overall_html_from_tree(
         tree, os.path.join(report_path, 'all.html'), footer)
+    if verbose:
+        print "Generated HTML files in %s" % report_path
 
 
 def get_svn_revision(path):
@@ -443,6 +449,11 @@ def main(args=None):
             '  If the output directory is omitted, it defaults to'
             ' ./coverage/report.')
 
+    parser.add_option('-q', '--quiet', help='be quiet',
+                      action='store_const', const=0, dest='verbose')
+    parser.add_option('-v', '--verbose', help='be verbose (default)',
+                      action='store_const', const=1, dest='verbose', default=1)
+
     if args is None:
         args = sys.argv[1:]
     opts, args = parser.parse_args(list(args))
@@ -460,7 +471,7 @@ def main(args=None):
     if len(args) > 2:
         parser.error("too many arguments")
 
-    make_coverage_reports(path, report_path)
+    make_coverage_reports(path, report_path, verbose=opts.verbose)
 
 
 if __name__ == '__main__':

@@ -5,7 +5,8 @@ CHANGES
 1.2.1 (unreleased)
 ------------------
 
-- The ``coveragereport`` script now accepts ``--help``.
+- The ``coveragereport`` script now accepts ``--help``, ``--verbose`` and
+  ``--quiet`` options, with verbose being on by default.
 
 
 1.2.0 (2010-02-11)
