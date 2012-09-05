@@ -3,25 +3,29 @@ Test Coverage Reports
 =====================
 
 The main objective of this package is to convert the text-based coverage
-output into an HTML coverage report. This is simply done by specifying the
-directory of the test reports and the desired output directory.
+output into an HTML coverage report. This is done by specifying the directory
+of the test reports and the desired output directory.
 
 Luckily we already have the text input ready:
 
   >>> import os
   >>> import z3c.coverage
   >>> inputDir = os.path.join(
-  ...     os.path.split(z3c.coverage.__file__)[0], 'sampleinput')
+  ...     os.path.dirname(z3c.coverage.__file__), 'sampleinput')
 
-The output directory has to be created first:
+Let's create a temporary directory for the output
 
   >>> import tempfile
-  >>> outputDir = os.path.join(tempfile.mkdtemp(), 'report')
+  >>> tempDir = tempfile.mkdtemp(prefix='tmp-z3c.coverage-report-')
 
-We can now simply create the coverage report as follows:
+The output directory will be created if it doesn't exist already
+
+  >>> outputDir = os.path.join(tempDir, 'report')
+
+We can now create the coverage report as follows:
 
   >>> from z3c.coverage import coveragereport
-  >>> coveragereport.main((inputDir, outputDir))
+  >>> coveragereport.main([inputDir, outputDir])
 
 Looking at the output directory, we now see several files:
 
@@ -190,7 +194,7 @@ as a script:
 
   >>> execfile(script_file, dict(__name__='__main__'))
 
-Defaults are chosen, when no input and output dir is specified:
+Defaults are chosen when no input and output dir is specified:
 
   >>> def make_coverage_reports_stub(path, report_path):
   ...     print path
@@ -205,4 +209,9 @@ Defaults are chosen, when no input and output dir is specified:
   coverage/reports
 
   >>> coveragereport.make_coverage_reports = make_coverage_reports_orig
+
+Let's clean up
+
+  >>> import shutil
+  >>> shutil.rmtree(tempDir)
 
