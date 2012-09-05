@@ -164,6 +164,7 @@ This function takes a cover file, converts it to a nicely colored HTML output:
   ...     os.path.split(z3c.coverage.__file__)[0], '__init__.py')
 
   >>> print coveragereport.syntax_highlight(filename)
+  ... # this will fail if you don't have enscript in your $PATH
   <BLANKLINE>
   <I><FONT COLOR="#B22222"># Make a package.
   </FONT></I>
@@ -171,7 +172,7 @@ This function takes a cover file, converts it to a nicely colored HTML output:
 If the highlighing command is not available, no coloration is done:
 
   >>> command_orig = coveragereport.HIGHLIGHT_COMMAND
-  >>> coveragereport.HIGHLIGHT_COMMAND = 'foobar %s'
+  >>> coveragereport.HIGHLIGHT_COMMAND = ['aflkakhalkjdsjdhf']
 
   >>> print coveragereport.syntax_highlight(filename)
   # Make a package.

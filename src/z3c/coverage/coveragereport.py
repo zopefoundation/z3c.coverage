@@ -40,10 +40,12 @@ import sys
 import os
 import datetime
 import cgi
+import subprocess
 
 
-HIGHLIGHT_COMMAND = ('enscript -q --footer --header -h --language=html'
-                     ' --highlight=python --color -o - "%s"')
+HIGHLIGHT_COMMAND = ['enscript', '-q', '--footer', '--header', '-h',
+                     '--language=html', '--highlight=python', '--color',
+                     '-o', '-']
 
 class CoverageNode(dict):
     """Tree node.
@@ -307,11 +309,14 @@ def generate_html(output_filename, tree, my_index, info, path, footer=""):
 
 def syntax_highlight(filename):
     """Return HTML with syntax-highlighted Python code from a file."""
-    # XXX can get painful if filenames contain unsafe characters
-    pipe = os.popen(HIGHLIGHT_COMMAND % filename,
-                    'r')
-    text = pipe.read()
-    if pipe.close():
+    # TODO: use pygments instead
+    try:
+        pipe = subprocess.Popen(HIGHLIGHT_COMMAND + [filename],
+                            stdout=subprocess.PIPE)
+        text, stderr = pipe.communicate()
+        if pipe.returncode != 0:
+            raise OSError
+    except OSError:
         # Failed to run enscript; maybe it is not installed?  Disable
         # syntax highlighting then.
         text = cgi.escape(file(filename).read())
@@ -418,7 +423,14 @@ def make_coverage_reports(path, report_path):
 
 def get_svn_revision(path):
     """Return the Subversion revision number for a working directory."""
-    rev = os.popen('svnversion "%s"' % path, 'r').readline().strip()
+    devnull = open('/dev/null', 'w')
+    try:
+        pipe = subprocess.Popen(['svnversion', path], stdout=subprocess.PIPE,
+                                stderr=devnull)
+        stdout, stderr = pipe.communicate()
+        rev = stdout.strip()
+    except OSError:
+        rev = ""
     if not rev:
         rev = "UNKNOWN"
     return rev
