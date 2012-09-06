@@ -25,7 +25,7 @@ The output directory will be created if it doesn't exist already
 We can now create the coverage report as follows:
 
   >>> from z3c.coverage import coveragereport
-  >>> coveragereport.main([inputDir, outputDir])
+  >>> coveragereport.main([inputDir, outputDir, '--quiet'])
 
 Looking at the output directory, we now see several files:
 
@@ -188,7 +188,7 @@ For convenience you can download the ``coveragereport.py`` module and run it
 as a script:
 
   >>> import sys
-  >>> sys.argv = ['coveragereport', inputDir, outputDir]
+  >>> sys.argv = ['coveragereport', inputDir, outputDir, '--quiet']
 
   >>> script_file = os.path.join(
   ...     z3c.coverage.__path__[0], 'coveragereport.py')
@@ -197,7 +197,7 @@ as a script:
 
 Defaults are chosen when no input and output dir is specified:
 
-  >>> def make_coverage_reports_stub(path, report_path):
+  >>> def make_coverage_reports_stub(path, report_path, **kw):
   ...     print path
   ...     print report_path
 

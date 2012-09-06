@@ -425,10 +425,9 @@ def make_coverage_reports(path, report_path, verbose=True):
 
 def get_svn_revision(path):
     """Return the Subversion revision number for a working directory."""
-    devnull = open('/dev/null', 'w')
     try:
         pipe = subprocess.Popen(['svnversion', path], stdout=subprocess.PIPE,
-                                stderr=devnull)
+                                stderr=subprocess.PIPE)
         stdout, stderr = pipe.communicate()
         rev = stdout.strip()
     except OSError:
