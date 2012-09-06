@@ -2,7 +2,7 @@
 CHANGES
 =======
 
-1.3.0 (unreleased)
+1.3.0 (2012-09-06)
 ------------------
 
 - ``coveragereport`` now accepts ``--help``, ``--verbose`` and ``--quiet``
