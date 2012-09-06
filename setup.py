@@ -23,7 +23,7 @@ def read(*rnames):
 
 setup(
     name='z3c.coverage',
-    version='1.2.1dev',
+    version='1.3.0dev',
     author="Zope Community",
     author_email="zope3-dev@zope.org",
     description="A script to visualize coverage reports via HTML",
@@ -67,6 +67,7 @@ setup(
         ),
     install_requires=[
         'setuptools',
+        'coverage',
         ],
     entry_points="""
         [console_scripts]

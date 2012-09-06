@@ -16,14 +16,17 @@
 
 Convert trace.py coverage reports to HTML.
 
-Usage: coveragereport.py [report-directory [output-directory]]
+Usage: coveragereport.py [input-dir-or-file directory [output-directory]]
 
-Locates plain-text coverage reports (files named
-``dotted.package.name.cover``) in the report directory and produces HTML
-reports in the output directory.  The format of plain-text coverage reports is
-as follows: the file name is a dotted Python module name with a ``.cover``
-suffix (e.g. ``zope.app.__init__.cover``).  Each line corresponds to the
-source file line with a 7 character wide prefix.  The prefix is one of
+Loads coverage data from plain-text coverage reports (files named
+``dotted.package.name.cover``) in the report directory *or* a .coverage
+file produced by http://pypi.python.org/pypi/coverage and produces HTML
+reports in the output directory.
+
+The format of plain-text coverage reports is as follows: the file name is
+a dotted Python module name with a ``.cover`` suffix (e.g.
+``zope.app.__init__.cover``).  Each line corresponds to the source file
+line with a 7 character wide prefix.  The prefix is one of
 
   '       ' if a line is not an executable code line
   '  NNN: ' where NNN is the number of times this line was executed
@@ -31,7 +34,9 @@ source file line with a 7 character wide prefix.  The prefix is one of
 
 You can produce such files with the Zope test runner by specifying
 ``--coverage`` on the command line, or, more generally, by using the
-``trace`` module in the standard library.
+``trace`` module in the standard library.  Although you should consider
+using the above-mentioned coverage package instead, as it's much faster
+than trace.py.
 
 $Id$
 """
@@ -43,11 +48,28 @@ import datetime
 import cgi
 import subprocess
 import optparse
+import tempfile
 
 
 HIGHLIGHT_COMMAND = ['enscript', '-q', '--footer', '--header', '-h',
                      '--language=html', '--highlight=python', '--color',
                      '-o', '-']
+
+
+class Lazy(object):
+    """Descriptor for lazy evaluation"""
+
+    def __init__(self, func):
+        self.func = func
+        self.name = func.__name__
+
+    def __get__(self, obj, cls):
+        if obj is None:
+            return self
+        value = self.func(obj)
+        obj.__dict__[self.name] = value
+        return value
+
 
 class CoverageNode(dict):
     """Tree node.
@@ -58,54 +80,122 @@ class CoverageNode(dict):
     a dict.  Item keys are non-qualified module names.
     """
 
-    def __str__(self):
-        covered, total = self.coverage
-        uncovered = total - covered
-        return '%s%% covered (%s of %s lines uncovered)' % \
-               (self.percent, uncovered, total)
+    @Lazy
+    def covered(self):
+        return sum(child.covered for child in self.itervalues())
 
-    @property
+    @Lazy
+    def total(self):
+        return sum(child.total for child in self.itervalues())
+
+    @Lazy
+    def uncovered(self):
+        return self.total - self.covered
+
+    @Lazy
     def percent(self):
-        """Compute the coverage percentage."""
-        covered, total = self.coverage
-        if total != 0:
-            return int(100 * covered / total)
+        if self.total != 0:
+            return 100 * self.covered // self.total
         else:
             return 100
 
-    @property
-    def coverage(self):
-        """Return (number_of_lines_covered, number_of_executable_lines).
+    @Lazy
+    def html_source(self):
+        return ''
 
-        Computes the numbers recursively for the first time and caches the
-        result.
+    def __str__(self):
+        return '%s%% covered (%s of %s lines uncovered)' % \
+               (self.percent, self.uncovered, self.total)
+
+    def get_at(self, path):
+        """Return a tree node for a given path.
+
+        The path is a sequence of child node names.
         """
-        if not hasattr(self, '_total'): # first-time computation
-            self._covered = self._total = 0
-            for substats in self.values():
-                covered_more, total_more = substats.coverage
-                self._covered += covered_more
-                self._total += total_more
-        return self._covered, self._total
+        node = self
+        for name in path:
+            node = node[name]
+        return node
 
-    @property
-    def uncovered(self):
-        """Compute the number of uncovered code lines."""
-        covered, total = self.coverage
-        return total - covered
+    def set_at(self, path, node):
+        """Create a tree node at a given path.
+
+        The path is a sequence of child node names.
+
+        Creates intermediate nodes if necessary.
+        """
+        parent = self
+        for name in path[:-1]:
+            parent = parent.setdefault(name, CoverageNode())
+        parent[path[-1]] = node
 
 
-def parse_file(filename):
-    """Parse a plain-text coverage report and return (covered, total)."""
-    covered = 0
-    total = 0
-    for line in file(filename):
-        if line.startswith(' '*7) or len(line) < 7:
-            continue
-        total += 1
-        if not line.startswith('>>>>>>'):
-            covered += 1
-    return (covered, total)
+class TraceCoverageNode(CoverageNode):
+    """Coverage node loaded from an annotated source file."""
+
+    def __init__(self, cover_filename):
+        self.cover_filename = cover_filename
+        self.covered, self.total = self._parse(cover_filename)
+
+    def _parse(self, filename):
+        """Parse a plain-text coverage report and return (covered, total)."""
+        covered = 0
+        total = 0
+        for line in file(filename):
+            if line.startswith(' '*7) or len(line) < 7:
+                continue
+            total += 1
+            if not line.startswith('>>>>>>'):
+                covered += 1
+        return (covered, total)
+
+    @Lazy
+    def html_source(self):
+        text = syntax_highlight(self.cover_filename)
+        text = highlight_uncovered_lines(text)
+        return '<pre>%s</pre>' % text
+
+
+class CoverageCoverageNode(CoverageNode):
+    """Coverage node loaded from a coverage.py data file."""
+
+    def __init__(self, cov, source_filename):
+        self.cov = cov
+        self.source_filename = source_filename
+        (filename_again, statements, excluded, missing,
+         missing_str) = cov.analysis2(source_filename)
+        self.covered = len(statements) - len(excluded) - len(missing)
+        self.total = len(statements) - len(excluded)
+        self._missing = set(missing)
+        self._statements = set(statements)
+        self._excluded = set(excluded)
+
+    @Lazy
+    def annotated_source(self):
+        MISSING   = '>>>>>> '
+        STATEMENT = '    1: '
+        EXCLUDED  = '     # '
+        OTHER     = '       '
+        lines = []
+        f = open(self.source_filename)
+        for n, line in enumerate(f):
+            n += 1 # workaround lack of enumerate(f, start=1) support in 2.4/5
+            if n in self._missing:      prefix = MISSING
+            elif n in self._excluded:   prefix = EXCLUDED
+            elif n in self._statements: prefix = STATEMENT
+            else:                       prefix = OTHER
+            lines.append(prefix + line)
+        return ''.join(lines)
+
+    @Lazy
+    def html_source(self):
+        tmpf = tempfile.NamedTemporaryFile(suffix='.py.cover')
+        tmpf.write(self.annotated_source)
+        tmpf.flush()
+        text = syntax_highlight(tmpf.name)
+        tmpf.close()
+        text = highlight_uncovered_lines(text)
+        return '<pre>%s</pre>' % text
 
 
 def get_file_list(path, filter_fn=None):
@@ -129,20 +219,7 @@ def filename_to_list(filename):
     return filename.split('.')[:-1]
 
 
-def get_tree_node(tree, index):
-    """Return a tree node for a given path.
-
-    The path is a sequence of child node names.
-
-    Creates intermediate and leaf nodes if necessary.
-    """
-    node = tree
-    for i in index:
-        node = node.setdefault(i, CoverageNode())
-    return node
-
-
-def create_tree(filelist, path):
+def create_tree_from_files(filelist, path):
     """Create a tree with coverage statistics.
 
     Takes the directory for coverage reports and a list of filenames relative
@@ -151,13 +228,32 @@ def create_tree(filelist, path):
 
     Returns the root node of the tree.
     """
-    tree = CoverageNode()
+    root = CoverageNode()
     for filename in filelist:
         tree_index = filename_to_list(filename)
-        node = get_tree_node(tree, tree_index)
         filepath = os.path.join(path, filename)
-        node._covered, node._total = parse_file(filepath)
-    return tree
+        root.set_at(tree_index, TraceCoverageNode(filepath))
+    return root
+
+
+def create_tree_from_coverage(cov, strip_prefix=None):
+    """Create a tree with coverage statistics.
+
+    Takes a coverage.coverage() instance.
+
+    Returns the root node of the tree.
+    """
+    root = CoverageNode()
+    for filename in cov.data.measured_files():
+        if strip_prefix and filename.startswith(strip_prefix):
+            short_name = filename[len(strip_prefix):].lstrip(os.path.sep)
+        else:
+            short_name = cov.file_locator.relative_filename(filename)
+        tree_index = filename_to_list(short_name.replace(os.path.sep, '.'))
+        if 'tests' in tree_index or 'ftests' in tree_index:
+            continue
+        root.set_at(tree_index, CoverageCoverageNode(cov, filename))
+    return root
 
 
 def traverse_tree(tree, index, function):
@@ -193,13 +289,6 @@ def index_to_url(index):
     return 'index.html'
 
 
-def index_to_filename(index):
-    """Construct the plain-text coverage report filename for a node."""
-    if index:
-        return '%s.cover' % '.'.join(index)
-    return ''
-
-
 def index_to_nice_name(index):
     """Construct an indented name for the node given its path."""
     if index:
@@ -228,9 +317,6 @@ def percent_to_colour(percent):
 
 def print_table_row(html, node, file_index):
     """Generate a row for an HTML table."""
-    covered, total = node.coverage
-    uncovered = total - covered
-    percent = node.percent
     nice_name = index_to_nice_name(file_index)
     if not node.keys():
         nice_name += '.py'
@@ -239,9 +325,9 @@ def print_table_row(html, node, file_index):
     print >> html, '<tr><td><a href="%s">%s</a></td>' % \
                    (index_to_url(file_index), nice_name),
     print >> html, '<td style="background: %s">&nbsp;&nbsp;&nbsp;&nbsp;</td>' % \
-                   (percent_to_colour(percent)),
+                   (percent_to_colour(node.percent)),
     print >> html, '<td>covered %s%% (%s of %s uncovered)</td></tr>' % \
-                   (percent, uncovered, total)
+                   (node.percent, node.uncovered, node.total)
 
 
 HEADER = """
@@ -284,7 +370,7 @@ def generate_html(output_filename, tree, my_index, info, path, footer=""):
     """
     html = open(output_filename, 'w')
     print >> html, HEADER % {'name': index_to_name(my_index)}
-    info = [(get_tree_node(tree, node_path), node_path) for node_path in info]
+    info = [(tree.get_at(node_path), node_path) for node_path in info]
     def key((node, node_path)):
         return (len(node_path), -node.uncovered, node_path and node_path[-1])
     info.sort(key=key)
@@ -293,18 +379,7 @@ def generate_html(output_filename, tree, my_index, info, path, footer=""):
             continue # skip root node
         print_table_row(html, node, file_index)
     print >> html, '</table><hr/>'
-    if not get_tree_node(tree, my_index):
-        file_path = os.path.join(path, index_to_filename(my_index))
-        text = syntax_highlight(file_path)
-        def color_uncov(line):
-            # The line must start with the missing line indicator or some HTML
-            # was put in front of it.
-            if line.startswith('&gt;'*6) or '>'+'&gt;'*6 in line:
-                return ('<div class="notcovered">%s</div>'
-                        % line.rstrip('\n'))
-            return line
-        text = ''.join(map(color_uncov, text.splitlines(True)))
-        print >> html, '<pre>%s</pre>' % text
+    print >> html, tree.get_at(my_index).html_source
     print >> html, FOOTER % footer
     html.close()
 
@@ -314,7 +389,7 @@ def syntax_highlight(filename):
     # TODO: use pygments instead
     try:
         pipe = subprocess.Popen(HIGHLIGHT_COMMAND + [filename],
-                            stdout=subprocess.PIPE)
+                                stdout=subprocess.PIPE)
         text, stderr = pipe.communicate()
         if pipe.returncode != 0:
             raise OSError
@@ -325,6 +400,19 @@ def syntax_highlight(filename):
     else:
         text = text[text.find('<PRE>')+len('<PRE>'):]
         text = text[:text.find('</PRE>')]
+    return text
+
+
+def highlight_uncovered_lines(text):
+    """Highlight lines beginning with '>>>>>>'."""
+    def color_uncov(line):
+        # The line must start with the missing line indicator or some HTML
+        # was put in front of it.
+        if line.startswith('&gt;'*6) or '>'+'&gt;'*6 in line:
+            return ('<div class="notcovered">%s</div>'
+                    % line.rstrip('\n'))
+        return line
+    text = ''.join(map(color_uncov, text.splitlines(True)))
     return text
 
 
@@ -404,22 +492,39 @@ def filter_fn(filename):
             'ftests' not in parts)
 
 
-def make_coverage_reports(path, report_path, verbose=True):
+def load_coverage(path, opts):
+    """Load coverage information from ``path``.
+
+    ``path`` can point to a directory full of files named *.cover, or it can
+    point to a single pickle file containing coverage information.
+    """
+    if os.path.isdir(path):
+        filelist = get_file_list(path, filter_fn)
+        tree = create_tree_from_files(filelist, path)
+        return tree
+    else:
+        import coverage
+        cov = coverage.coverage(data_file=path, config_file=False)
+        cov.load()
+        tree = create_tree_from_coverage(cov, strip_prefix=opts.strip_prefix)
+        return tree
+
+
+def make_coverage_reports(path, report_path, opts):
     """Convert reports from ``path`` into HTML files in ``report_path``."""
-    create_report_path(report_path)
-    filelist = get_file_list(path, filter_fn)
-    if verbose:
+    if opts.verbose:
         print "Loading coverage reports from %s" % path
-    tree = create_tree(filelist, path)
-    if verbose:
+    tree = load_coverage(path, opts=opts)
+    if opts.verbose:
         print tree
     rev = get_svn_revision(os.path.join(path, os.path.pardir))
     timestamp = str(datetime.datetime.utcnow())+"Z"
     footer = "Generated for revision %s on %s" % (rev, timestamp)
+    create_report_path(report_path)
     generate_htmls_from_tree(tree, path, report_path, footer)
     generate_overall_html_from_tree(
         tree, os.path.join(report_path, 'all.html'), footer)
-    if verbose:
+    if opts.verbose:
         print "Generated HTML files in %s" % report_path
 
 
@@ -441,17 +546,20 @@ def main(args=None):
     """Process command line arguments and produce HTML coverage reports."""
 
     parser = optparse.OptionParser(
-        "usage: %prog [options] [inputdir [outputdir]]",
+        "usage: %prog [options] [inputpath [outputdir]]",
         description=
-            'Converts trace.py coverage reports to HTML.'
-            '  If the input directory is omitted, it defaults to ./coverage.'
-            '  If the output directory is omitted, it defaults to'
-            ' ./coverage/report.')
+            'Converts coverage reports to HTML.  If the input path is'
+            ' omitted, it defaults to coverage or .coverage, whichever'
+            ' exists.  If the output directory is omitted, it defaults to'
+            ' inputpath + /report or ./coverage-reports, depending on whether'
+            ' the input path points to a directory or a file.')
 
     parser.add_option('-q', '--quiet', help='be quiet',
                       action='store_const', const=0, dest='verbose')
     parser.add_option('-v', '--verbose', help='be verbose (default)',
                       action='store_const', const=1, dest='verbose', default=1)
+    parser.add_option('--strip-prefix', metavar='PREFIX',
+                      help='strip base directory from filenames loaded from .coverage')
 
     if args is None:
         args = sys.argv[1:]
@@ -460,17 +568,26 @@ def main(args=None):
     if len(args) > 0:
         path = args[0]
     else:
-        path = 'coverage'
+        if os.path.exists('coverage'):
+            # backward compat: default input path used to be 'coverage'
+            path = 'coverage'
+        else:
+            path = '.coverage'
 
     if len(args) > 1:
         report_path = args[1]
     else:
-        report_path = 'coverage/reports'
+        if os.path.isdir(path):
+            # backward compat: default input path is 'coverage', default output
+            # path is 'coverage/reports'
+            report_path = os.path.join(path, 'reports')
+        else:
+            report_path = 'coverage-reports'
 
     if len(args) > 2:
         parser.error("too many arguments")
 
-    make_coverage_reports(path, report_path, verbose=opts.verbose)
+    make_coverage_reports(path, report_path, opts=opts)
 
 
 if __name__ == '__main__':
