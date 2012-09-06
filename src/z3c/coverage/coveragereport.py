@@ -189,11 +189,15 @@ class CoverageCoverageNode(CoverageNode):
 
     @Lazy
     def html_source(self):
-        tmpf = tempfile.NamedTemporaryFile(suffix='.py.cover')
+        tmpdir = tempfile.mkdtemp(prefix='z3c.coverage')
+        tmpfilename = os.path.join(tmpdir,
+                            os.path.basename(self.source_filename) + '.cover')
+        tmpf = open(tmpfilename, 'w')
         tmpf.write(self.annotated_source)
-        tmpf.flush()
-        text = syntax_highlight(tmpf.name)
         tmpf.close()
+        text = syntax_highlight(tmpf.name)
+        os.unlink(tmpfilename)
+        os.rmdir(tmpdir)
         text = highlight_uncovered_lines(text)
         return '<pre>%s</pre>' % text
 
@@ -246,7 +250,9 @@ def create_tree_from_coverage(cov, strip_prefix=None):
     root = CoverageNode()
     for filename in cov.data.measured_files():
         if strip_prefix and filename.startswith(strip_prefix):
-            short_name = filename[len(strip_prefix):].lstrip(os.path.sep)
+            short_name = filename[len(strip_prefix):]
+            short_name = short_name.replace('/', os.path.sep)
+            short_name = short_name.lstrip(os.path.sep)
         else:
             short_name = cov.file_locator.relative_filename(filename)
         tree_index = filename_to_list(short_name.replace(os.path.sep, '.'))

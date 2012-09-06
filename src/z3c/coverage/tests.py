@@ -285,11 +285,13 @@ def doctest_main_default_arguments():
 
 def test_suite():
     checker = renormalizing.RENormalizing([
-                # optparse in Python 2.4 prints "usage:" and "options:",
-                # in 2.5 it prints "Usage:" and "Options:".
-                (re.compile('^usage:'), 'Usage:'),
-                (re.compile('^options:', re.MULTILINE), 'Options:'),
-                                           ])
+        # optparse in Python 2.4 prints "usage:" and "options:",
+        # in 2.5 it prints "Usage:" and "Options:".
+        (re.compile('^usage:'), 'Usage:'),
+        (re.compile('^options:', re.MULTILINE), 'Options:'),
+        # Windows, *sigh*
+        (re.compile('coverage\\\\reports'), 'coverage/reports'),
+    ])
     return unittest.TestSuite([
         doctest.DocFileSuite(
             'README.txt', checker=checker,
@@ -299,7 +301,7 @@ def test_suite():
             'coveragediff.txt', checker=checker,
             optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
             ),
-        doctest.DocTestSuite(),
+        doctest.DocTestSuite(checker=checker),
         doctest.DocTestSuite(
             'z3c.coverage.coveragediff'),
         doctest.DocTestSuite(
