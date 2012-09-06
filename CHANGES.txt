@@ -5,6 +5,8 @@ CHANGES
 1.2.1 (unreleased)
 ------------------
 
+- Bugfix: sorting by numbered of uncovered lines was broken.
+
 - The ``coveragereport`` script now accepts ``--help``, ``--verbose`` and
   ``--quiet`` options, with verbose being on by default.
 

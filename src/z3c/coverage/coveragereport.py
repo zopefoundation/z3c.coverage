@@ -183,7 +183,7 @@ def traverse_tree_in_order(tree, index, function, order_by):
     """
     function(tree, index)
     for key, node in sorted(tree.items(), key=order_by):
-        traverse_tree(node, index + [key], function)
+        traverse_tree_in_order(node, index + [key], function, order_by)
 
 
 def index_to_url(index):
