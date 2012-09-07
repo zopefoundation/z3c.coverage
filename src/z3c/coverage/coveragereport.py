@@ -240,7 +240,7 @@ def create_tree_from_files(filelist, path):
     return root
 
 
-def create_tree_from_coverage(cov, strip_prefix=None):
+def create_tree_from_coverage(cov, strip_prefix=None, path_aliases=None):
     """Create a tree with coverage statistics.
 
     Takes a coverage.coverage() instance.
@@ -248,6 +248,9 @@ def create_tree_from_coverage(cov, strip_prefix=None):
     Returns the root node of the tree.
     """
     root = CoverageNode()
+    if path_aliases:
+        apply_path_aliases(cov, dict([alias.partition('=')[::2]
+                                      for alias in path_aliases]))
     for filename in cov.data.measured_files():
         if strip_prefix and filename.startswith(strip_prefix):
             short_name = filename[len(strip_prefix):]
@@ -260,6 +263,24 @@ def create_tree_from_coverage(cov, strip_prefix=None):
             continue
         root.set_at(tree_index, CoverageCoverageNode(cov, filename))
     return root
+
+
+def apply_path_aliases(cov, aliases):
+    """Adjust filenames in coverage data."""
+    # XXX: fragile: we're touching the internal data structures directly
+    aliases = aliases.items()
+    aliases.sort(key=lambda (k, v): len(k), reverse=True) # longest key first
+    def fixup_filename(filename):
+        for alias, local in aliases:
+            return local + filename[len(alias):]
+        return filename
+    cov.data.lines = map_dict_keys(fixup_filename, cov.data.lines)
+    cov.data.arcs = map_dict_keys(fixup_filename, cov.data.arcs)
+
+
+def map_dict_keys(fn, d):
+    """Transform {x: y} to {fn(x): y}."""
+    return dict((fn(k), v) for k, v in d.items())
 
 
 def traverse_tree(tree, index, function):
@@ -512,7 +533,8 @@ def load_coverage(path, opts):
         import coverage
         cov = coverage.coverage(data_file=path, config_file=False)
         cov.load()
-        tree = create_tree_from_coverage(cov, strip_prefix=opts.strip_prefix)
+        tree = create_tree_from_coverage(cov, strip_prefix=opts.strip_prefix,
+                                         path_aliases=opts.path_alias)
         return tree
 
 
@@ -566,6 +588,9 @@ def main(args=None):
                       action='store_const', const=1, dest='verbose', default=1)
     parser.add_option('--strip-prefix', metavar='PREFIX',
                       help='strip base directory from filenames loaded from .coverage')
+    parser.add_option('--path-alias', metavar='PATH=LOCALPATH',
+                      help='define path mappings for filenames loaded from .coverage',
+                      action='append')
 
     if args is None:
         args = sys.argv[1:]

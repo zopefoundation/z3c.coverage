@@ -5,7 +5,7 @@ CHANGES
 1.3.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- ``coveragereport`` now accepts ``--path-alias``.
 
 
 1.3.0 (2012-09-06)
