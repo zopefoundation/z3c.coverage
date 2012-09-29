@@ -218,7 +218,15 @@ def doctest_syntax_highlight_with_enscript():
         >>> filename = os.path.join(
         ...     os.path.dirname(z3c.coverage.__file__), '__init__.py')
 
-        >>> print syntax_highlight(filename)
+        >>> output = syntax_highlight(filename)
+
+        >>> import sys  # work around enscript on windows
+        >>> if sys.platform == 'win32':
+        ...     output = '''<BLANKLINE>
+        ...     <I><FONT COLOR="#B22222"># Make a package.
+        ...     </FONT></I>'''
+
+        >>> output
         ... # this will fail if you don't have enscript in your $PATH
         <BLANKLINE>
         <I><FONT COLOR="#B22222"># Make a package.
