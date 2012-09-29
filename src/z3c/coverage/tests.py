@@ -223,8 +223,8 @@ def doctest_syntax_highlight_with_enscript():
         >>> import sys  # work around enscript on windows
         >>> if sys.platform == 'win32':
         ...     output = '''<BLANKLINE>
-        ...     <I><FONT COLOR="#B22222"># Make a package.
-        ...     </FONT></I>'''
+        ... <I><FONT COLOR="#B22222"># Make a package.
+        ... </FONT></I>'''
 
         >>> print output
         ... # this will fail if you don't have enscript in your $PATH
