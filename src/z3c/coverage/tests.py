@@ -226,7 +226,7 @@ def doctest_syntax_highlight_with_enscript():
         ...     <I><FONT COLOR="#B22222"># Make a package.
         ...     </FONT></I>'''
 
-        >>> output
+        >>> print output
         ... # this will fail if you don't have enscript in your $PATH
         <BLANKLINE>
         <I><FONT COLOR="#B22222"># Make a package.
