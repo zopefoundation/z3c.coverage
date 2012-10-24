@@ -23,7 +23,7 @@ def read(*rnames):
 
 setup(
     name='z3c.coverage',
-    version='1.3.1.dev0',
+    version='1.3.1',
     author="Zope Community",
     author_email="zope3-dev@zope.org",
     description="A script to visualize coverage reports via HTML",
