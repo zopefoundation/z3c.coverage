@@ -30,13 +30,6 @@ setup(
     long_description=(
         read('README.txt')
         + '\n\n' +
-        'Detailed Documentation\n'
-        '**********************'
-        + '\n\n' +
-        read('src', 'z3c', 'coverage', 'README.txt')
-        + '\n\n' +
-        read('src', 'z3c', 'coverage', 'coveragediff.txt')
-        + '\n\n' +
         read('CHANGES.txt')
         ),
     license="ZPL 2.1",

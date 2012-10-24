@@ -1,9 +1,10 @@
-=======
-CHANGES
+Changes
 =======
 
 1.3.1 (unreleased)
 ------------------
+
+- Nicer PyPI description.  Doctests are tests, not docs.
 
 - ``coveragereport`` now accepts ``--path-alias``.
 
