@@ -334,6 +334,8 @@ def index_to_name(index):
 def percent_to_colour(percent):
     if percent == 100:
         return 'green'
+    elif percent >= 95:
+        return '#74F300'
     elif percent >= 90:
         return 'yellow'
     elif percent >= 80:

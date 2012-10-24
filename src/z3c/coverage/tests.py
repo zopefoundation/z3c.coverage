@@ -163,6 +163,8 @@ def doctest_percent_to_colour():
 
         >>> percent_to_colour(100)
         'green'
+        >>> percent_to_colour(95)
+        '#74F300'
         >>> percent_to_colour(92)
         'yellow'
         >>> percent_to_colour(85)

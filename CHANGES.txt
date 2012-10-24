@@ -7,6 +7,9 @@ CHANGES
 
 - ``coveragereport`` now accepts ``--path-alias``.
 
+- ``coveragereport``: new color step between yellow (90%) and green (100%), a
+  yellowish-green (95%).
+
 
 1.3.0 (2012-09-06)
 ------------------
