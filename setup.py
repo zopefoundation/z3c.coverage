@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Setup
-
-$Id$
 """
 import os
 from setuptools import setup, find_packages
@@ -23,7 +21,7 @@ def read(*rnames):
 
 setup(
     name='z3c.coverage',
-    version='1.3.2.dev0',
+    version='2.0.0',
     author="Zope Community",
     author_email="zope3-dev@zope.org",
     description="A script to visualize coverage reports via HTML",
