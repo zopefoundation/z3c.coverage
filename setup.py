@@ -41,10 +41,10 @@ setup(
         'License :: OSI Approved :: Zope Public License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.4',
-        'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Topic :: Internet :: WWW/HTTP',
@@ -56,7 +56,7 @@ setup(
     package_dir={'': 'src'},
     namespace_packages=['z3c'],
     extras_require=dict(
-        test=['zope.testing'],
+        test=['six', 'zope.testing'],
         ),
     install_requires=[
         'setuptools',

@@ -22,33 +22,17 @@ Usage: coveragediff.py [options] old-dir new-dir
 The directories are expected to contain files named '<package>.<module>.cover'
 with the format that Python's trace.py produces.
 """
+from __future__ import print_function
 
 import os
 import re
 import smtplib
 import optparse
-from email.MIMEText import MIMEText
-
 
 try:
-    any
-except NameError:
-    # python 2.4 compatibility
-    def any(list):
-        """Return True if bool(x) is True for any x in the iterable.
-
-            >>> any([1, 'yes', 0, None])
-            True
-            >>> any([0, None, ''])
-            False
-            >>> any([])
-            False
-
-        """
-        for item in list:
-            if item:
-                return True
-        return False
+    from email.MIMEText import MIMEText
+except ImportError:
+    from email.mime.text import MIMEText
 
 
 def matches(string, list_of_regexes):
@@ -91,8 +75,8 @@ def filter_files(files, include=(), exclude=()):
         include = ['.'] # include everything by default
     if not exclude:
         exclude = []    # exclude nothing by default
-    include = map(re.compile, include)
-    exclude = map(re.compile, exclude)
+    include = list(map(re.compile, include))
+    exclude = list(map(re.compile, exclude))
     return [fn for fn in files
             if matches(fn, include) and not matches(fn, exclude)]
 
@@ -128,7 +112,7 @@ def warn(filename, message):
 
     """
     module = strip(os.path.basename(filename), '.cover')
-    print '%s: %s' % (module, message)
+    print('%s: %s' % (module, message))
 
 
 def compare_dirs(olddir, newdir, include=(), exclude=(), warn=warn):
@@ -148,11 +132,12 @@ def compare_dirs(olddir, newdir, include=(), exclude=(), warn=warn):
 def count_coverage(filename):
     """Count the number of covered and uncovered lines in a file."""
     covered = uncovered = 0
-    for line in file(filename):
-        if line.startswith('>>>>>>'):
-            uncovered += 1
-        elif len(line) >= 7 and not line.startswith(' '*7):
-            covered += 1
+    with open(filename) as file:
+        for line in file:
+            if line.startswith('>>>>>>'):
+                uncovered += 1
+            elif len(line) >= 7 and not line.startswith(' '*7):
+                covered += 1
     return covered, uncovered
 
 
@@ -255,11 +240,11 @@ class ReportPrinter(object):
     def warn(self, filename, message):
         """Warn about test coverage regression."""
         module = strip(os.path.basename(filename), '.cover')
-        print '%s: %s' % (module, message)
+        print('%s: %s' % (module, message))
         if self.web_url:
             url = urljoin(self.web_url, module + '.html')
-            print 'See ' + url
-            print
+            print('See ' + url)
+            print('')
 
 
 class ReportEmailer(object):

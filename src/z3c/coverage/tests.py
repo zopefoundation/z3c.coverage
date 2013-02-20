@@ -2,6 +2,7 @@
 """
 Test suite for z3c.coverage
 """
+from __future__ import print_function
 
 import doctest
 import os
@@ -26,7 +27,7 @@ def doctest_Lazy():
         >>> class MyClass(object):
         ...     @Lazy
         ...     def foo(self):
-        ...         print "computing foo"
+        ...         print("computing foo")
         ...         return 42
 
     This is basic lazy evaluation
@@ -121,7 +122,7 @@ def doctest_CoverageNode():
 
     Finally, we also can get a nice output:
 
-        >>> print root['z3c']
+        >>> print(root['z3c'])
         64% covered (94 of 262 lines uncovered)
 
     """
@@ -180,8 +181,8 @@ def doctest_traverse_tree_in_order():
 
         >>> tree = dict(a=dict(b={}, c={}, d={}), b=dict(x={}, y={}, z={}))
         >>> def pr_index(tree, index):
-        ...     print index
-        >>> traverse_tree_in_order(tree, [], pr_index, lambda (k, n): k)
+        ...     print(index)
+        >>> traverse_tree_in_order(tree, [], pr_index, lambda i: i[0])
         []
         ['a']
         ['a', 'b']
@@ -228,7 +229,7 @@ def doctest_syntax_highlight_with_enscript():
         ... <I><FONT COLOR="#B22222"># Make a package.
         ... </FONT></I>'''
 
-        >>> print output
+        >>> print(output)
         ... # this will fail if you don't have enscript in your $PATH
         <BLANKLINE>
         <I><FONT COLOR="#B22222"># Make a package.
@@ -248,7 +249,7 @@ def doctest_syntax_highlight_without_enscript():
         >>> filename = os.path.join(
         ...     os.path.dirname(z3c.coverage.__file__), '__init__.py')
 
-        >>> print syntax_highlight(filename)
+        >>> print(syntax_highlight(filename))
         # Make a package.
         <BLANKLINE>
 
@@ -262,8 +263,8 @@ def doctest_main_default_arguments():
     Defaults are chosen when no input and output dir is specified.
 
         >>> def make_coverage_reports_stub(path, report_path, **kw):
-        ...     print path
-        ...     print report_path
+        ...     print(path)
+        ...     print(report_path)
 
         >>> make_coverage_reports_orig = coveragereport.make_coverage_reports
         >>> coveragereport.make_coverage_reports = make_coverage_reports_stub
@@ -292,6 +293,8 @@ def doctest_main_default_arguments():
 
     """
 
+def setUp(test):
+    test.globs['print_function'] = print_function
 
 def test_suite():
     checker = renormalizing.RENormalizing([
@@ -304,11 +307,11 @@ def test_suite():
     ])
     return unittest.TestSuite([
         doctest.DocFileSuite(
-            'README.txt', checker=checker,
+            'README.txt', setUp=setUp, checker=checker,
             optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
             ),
         doctest.DocFileSuite(
-            'coveragediff.txt', checker=checker,
+            'coveragediff.txt', setUp=setUp, checker=checker,
             optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
             ),
         doctest.DocTestSuite(checker=checker),

@@ -40,6 +40,7 @@ than trace.py.
 
 $Id$
 """
+from __future__ import print_function
 __docformat__ = "reStructuredText"
 
 import sys
@@ -82,11 +83,11 @@ class CoverageNode(dict):
 
     @Lazy
     def covered(self):
-        return sum(child.covered for child in self.itervalues())
+        return sum(child.covered for child in self.values())
 
     @Lazy
     def total(self):
-        return sum(child.total for child in self.itervalues())
+        return sum(child.total for child in self.values())
 
     @Lazy
     def uncovered(self):
@@ -141,12 +142,13 @@ class TraceCoverageNode(CoverageNode):
         """Parse a plain-text coverage report and return (covered, total)."""
         covered = 0
         total = 0
-        for line in file(filename):
-            if line.startswith(' '*7) or len(line) < 7:
-                continue
-            total += 1
-            if not line.startswith('>>>>>>'):
-                covered += 1
+        with open(filename) as file:
+            for line in file:
+                if line.startswith(' '*7) or len(line) < 7:
+                    continue
+                total += 1
+                if not line.startswith('>>>>>>'):
+                    covered += 1
         return (covered, total)
 
     @Lazy
@@ -268,8 +270,9 @@ def create_tree_from_coverage(cov, strip_prefix=None, path_aliases=None):
 def apply_path_aliases(cov, aliases):
     """Adjust filenames in coverage data."""
     # XXX: fragile: we're touching the internal data structures directly
-    aliases = aliases.items()
-    aliases.sort(key=lambda (k, v): len(k), reverse=True) # longest key first
+    # longest key first
+    aliases = sorted(
+        aliases.items(), key=lambda i: len(i[0]), reverse=True)
     def fixup_filename(filename):
         for alias, local in aliases:
             return local + filename[len(alias):]
@@ -351,12 +354,12 @@ def print_table_row(html, node, file_index):
         nice_name += '.py'
     else:
         nice_name += '/'
-    print >> html, '<tr><td><a href="%s">%s</a></td>' % \
-                   (index_to_url(file_index), nice_name),
-    print >> html, '<td style="background: %s">&nbsp;&nbsp;&nbsp;&nbsp;</td>' % \
-                   (percent_to_colour(node.percent)),
-    print >> html, '<td>covered %s%% (%s of %s uncovered)</td></tr>' % \
-                   (node.percent, node.uncovered, node.total)
+    print('<tr><td><a href="%s">%s</a></td>' % \
+              (index_to_url(file_index), nice_name), file=html)
+    print('<td style="background: %s">&nbsp;&nbsp;&nbsp;&nbsp;</td>' % \
+              (percent_to_colour(node.percent)), file=html)
+    print('<td>covered %s%% (%s of %s uncovered)</td></tr>' % \
+              (node.percent, node.uncovered, node.total), file=html)
 
 
 HEADER = """
@@ -398,18 +401,19 @@ def generate_html(output_filename, tree, my_index, info, path, footer=""):
     ``path`` is the directory name for the plain-text report files.
     """
     html = open(output_filename, 'w')
-    print >> html, HEADER % {'name': index_to_name(my_index)}
+    print(HEADER % {'name': index_to_name(my_index)}, file=html)
     info = [(tree.get_at(node_path), node_path) for node_path in info]
-    def key((node, node_path)):
+    def key(node_info):
+        (node, node_path) = node_info
         return (len(node_path), -node.uncovered, node_path and node_path[-1])
     info.sort(key=key)
     for node, file_index in info:
         if not file_index:
             continue # skip root node
         print_table_row(html, node, file_index)
-    print >> html, '</table><hr/>'
-    print >> html, tree.get_at(my_index).html_source
-    print >> html, FOOTER % footer
+    print('</table><hr/>', file=html)
+    print(tree.get_at(my_index).html_source, file=html)
+    print(FOOTER % footer, file=html)
     html.close()
 
 
@@ -425,8 +429,10 @@ def syntax_highlight(filename):
     except OSError:
         # Failed to run enscript; maybe it is not installed?  Disable
         # syntax highlighting then.
-        text = cgi.escape(file(filename).read())
+        with open(filename, 'r') as file:
+            text = cgi.escape(file.read())
     else:
+        text = text.decode('ascii')
         text = text[text.find('<PRE>')+len('<PRE>'):]
         text = text[:text.find('</PRE>')]
     return text
@@ -476,15 +482,16 @@ def generate_htmls_from_tree(tree, path, report_path, footer=""):
 def generate_overall_html_from_tree(tree, output_filename, footer=""):
     """Generate an overall HTML file for all nodes in the tree."""
     html = open(output_filename, 'w')
-    print >> html, HEADER % {'name': ', '.join(sorted(tree.keys()))}
+    print(HEADER % {'name': ', '.join(sorted(tree.keys()))}, file=html)
     def print_node(node, file_index):
         if file_index: # skip root node
             print_table_row(html, node, file_index)
-    def sort_by((key, node)):
+    def sort_by(node_info):
+        (key, node) = node_info
         return (-node.uncovered, key)
     traverse_tree_in_order(tree, [], print_node, sort_by)
-    print >> html, '</table><hr/>'
-    print >> html, FOOTER % footer
+    print('</table><hr/>', file=html)
+    print(FOOTER % footer, file=html)
     html.close()
 
 
@@ -543,10 +550,10 @@ def load_coverage(path, opts):
 def make_coverage_reports(path, report_path, opts):
     """Convert reports from ``path`` into HTML files in ``report_path``."""
     if opts.verbose:
-        print "Loading coverage reports from %s" % path
+        print("Loading coverage reports from %s" % path)
     tree = load_coverage(path, opts=opts)
     if opts.verbose:
-        print tree
+        print(tree)
     rev = get_svn_revision(os.path.join(path, os.path.pardir))
     timestamp = str(datetime.datetime.utcnow())+"Z"
     footer = "Generated for revision %s on %s" % (rev, timestamp)
@@ -555,7 +562,7 @@ def make_coverage_reports(path, report_path, opts):
     generate_overall_html_from_tree(
         tree, os.path.join(report_path, 'all.html'), footer)
     if opts.verbose:
-        print "Generated HTML files in %s" % report_path
+        print("Generated HTML files in %s" % report_path)
 
 
 def get_svn_revision(path):

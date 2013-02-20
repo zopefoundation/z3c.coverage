@@ -23,7 +23,7 @@ in a given directory
 
     >>> from z3c.coverage.coveragediff import find_coverage_files
     >>> for filename in sorted(find_coverage_files(sampleinput_dir)):
-    ...     print filename
+    ...     print(filename)
     z3c.coverage.__init__.cover
     z3c.coverage.coveragediff.cover
     z3c.coverage.coveragereport.cover
@@ -34,7 +34,7 @@ in a given location that match a set of include and exclude patterns
 
     >>> from z3c.coverage.coveragediff import filter_coverage_files
     >>> for filename in sorted(filter_coverage_files(sampleinput_dir)):
-    ...     print filename
+    ...     print(filename)
     z3c.coverage.__init__.cover
     z3c.coverage.coveragediff.cover
     z3c.coverage.coveragereport.cover
@@ -42,14 +42,14 @@ in a given location that match a set of include and exclude patterns
 
     >>> for filename in sorted(filter_coverage_files(sampleinput_dir,
     ...                                              include=['diff'])):
-    ...     print filename
+    ...     print(filename)
     z3c.coverage.coveragediff.cover
 
 The patterns are regular expressions
 
     >>> for filename in sorted(filter_coverage_files(sampleinput_dir,
     ...                                              exclude=['^z'])):
-    ...     print filename
+    ...     print(filename)
 
 
 Parsing coverage files
@@ -140,22 +140,23 @@ an insurance, so that even if our stub fails, the rest of the tests won't
 send any real emails:
 
     >>> MailSender.connection_class = None
+    >>> import six
 
     >>> class FakeSMTP(object):
     ...     def __init__(self, host, port):
-    ...         print "Connecting to %s:%s" % (host, port)
+    ...         print("Connecting to %s:%s" % (host, port))
     ...     def sendmail(self, sender, recipients, body):
     ...         from smtplib import quoteaddr
-    ...         print "MAIL FROM:%s" % quoteaddr(sender)
-    ...         if isinstance(recipients, basestring):
+    ...         print("MAIL FROM:%s" % quoteaddr(sender))
+    ...         if isinstance(recipients, six.string_types):
     ...             recipients = [recipients]
     ...         for recipient in recipients:
-    ...             print "RCPT TO:%s" % quoteaddr(recipient)
-    ...         print "DATA"
-    ...         print body
-    ...         print "."
+    ...             print("RCPT TO:%s" % quoteaddr(recipient))
+    ...         print("DATA")
+    ...         print(body)
+    ...         print(".")
     ...     def quit(self):
-    ...         print "QUIT"
+    ...         print("QUIT")
     >>> mailer.connection_class = FakeSMTP
 
 Here's how you send an email:
@@ -250,11 +251,11 @@ send emails from the test suite, we'll use a stub MailSender class:
 
     >>> class FakeMailSender(object):
     ...     def send_email(self, from_addr, to_addr, subject, body):
-    ...         print "From:", from_addr
-    ...         print "To:", to_addr
-    ...         print "Subject:", subject
-    ...         print "---"
-    ...         print body
+    ...         print("From:", from_addr)
+    ...         print("To:", to_addr)
+    ...         print("Subject:", subject)
+    ...         print("---")
+    ...         print(body)
     >>> emailer.mailer = FakeMailSender()
     >>> emailer.send()
     From: Some Bot <bot@example.com>
@@ -324,9 +325,9 @@ A traditional ``main`` function parses command-line arguments and hooks up
     ...             main()
     ...         finally:
     ...             sys.stderr = old_stderr
-    ...     except SystemExit, e:
+    ...     except SystemExit as e:
     ...         if e.code:
-    ...             print "(returned exit code %s)" % e.code
+    ...             print("(returned exit code %s)" % e.code)
 
 
 Help message
@@ -454,7 +455,8 @@ as a script
 
     >>> sys.argv = ['coveragediff', sampleinput_dir, another_dir]
     >>> script_file = os.path.join(z3c.coverage.__path__[0], 'coveragediff.py')
-    >>> execfile(script_file, dict(__name__='__main__'))
+    >>> with open(script_file) as f:
+    ...     code = compile(f.read(), script_file, 'exec')
+    ...     exec(code, dict(__name__='__main__'))
     z3c.coverage.coveragediff: 36 new lines of untested code
     z3c.coverage.fakenewmodule: new file with 3 lines of untested code (out of 13)
-
