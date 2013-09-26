@@ -56,6 +56,8 @@ HIGHLIGHT_COMMAND = ['enscript', '-q', '--footer', '--header', '-h',
                      '--language=html', '--highlight=python', '--color',
                      '-o', '-']
 
+#: Expected encoding of highlight command (enscript).
+HIGHLIGHT_CMD_ENCODING = 'latin1'
 
 class Lazy(object):
     """Descriptor for lazy evaluation"""
@@ -412,7 +414,9 @@ def generate_html(output_filename, tree, my_index, info, path, footer=""):
             continue # skip root node
         print_table_row(html, node, file_index)
     print('</table><hr/>', file=html)
-    print(tree.get_at(my_index).html_source, file=html)
+    print(
+        (tree.get_at(my_index).html_source).encode(HIGHLIGHT_CMD_ENCODING),
+        file=html)
     print(FOOTER % footer, file=html)
     html.close()
 
@@ -432,7 +436,7 @@ def syntax_highlight(filename):
         with open(filename, 'r') as file:
             text = cgi.escape(file.read())
     else:
-        text = text.decode('ascii')
+        text = text.decode(HIGHLIGHT_CMD_ENCODING)
         text = text[text.find('<PRE>')+len('<PRE>'):]
         text = text[:text.find('</PRE>')]
     return text

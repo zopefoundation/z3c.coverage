@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Test suite for z3c.coverage
 """
@@ -227,12 +228,16 @@ def doctest_syntax_highlight_with_enscript():
         >>> if sys.platform == 'win32':
         ...     output = '''<BLANKLINE>
         ... <I><FONT COLOR="#B22222"># Make a package.
+        ... </FONT></I><I><FONT COLOR="#B22222"># -*- coding: utf-8 -*-
+        ... </FONT></I><I><FONT COLOR="#B22222"># Some umlauts for testing: ...
         ... </FONT></I>'''
 
-        >>> print(output)
+        >>> print(output)  # doctest:+ELLIPSIS +NORMALIZE_WHITESPACE
         ... # this will fail if you don't have enscript in your $PATH
         <BLANKLINE>
         <I><FONT COLOR="#B22222"># Make a package.
+        </FONT></I><I><FONT COLOR="#B22222"># -*- coding: utf-8 -*-
+        </FONT></I><I><FONT COLOR="#B22222"># Some umlauts for testing: ...
         </FONT></I>
 
     """
@@ -251,6 +256,8 @@ def doctest_syntax_highlight_without_enscript():
 
         >>> print(syntax_highlight(filename))
         # Make a package.
+        # -*- coding: utf-8 -*-
+        # Some umlauts for testing: ä ö ü € ௲
         <BLANKLINE>
 
         >>> coveragereport.HIGHLIGHT_COMMAND = command_orig
