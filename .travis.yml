@@ -5,6 +5,7 @@ env:
     - TOXENV=py33
     - TOXENV=pypy
 install:
+    - sudo apt-get install enscript
     - pip install tox
 script:
     - tox
