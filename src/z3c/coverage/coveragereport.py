@@ -414,9 +414,10 @@ def generate_html(output_filename, tree, my_index, info, path, footer=""):
             continue # skip root node
         print_table_row(html, node, file_index)
     print('</table><hr/>', file=html)
-    print(
-        (tree.get_at(my_index).html_source).encode(HIGHLIGHT_CMD_ENCODING),
-        file=html)
+    source = tree.get_at(my_index).html_source
+    if not isinstance(source, str):
+        source = source.encode(HIGHLIGHT_CMD_ENCODING)
+    print(source, file=html)
     print(FOOTER % footer, file=html)
     html.close()
 
