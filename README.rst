@@ -2,6 +2,9 @@
 z3c.coverage
 ============
 
+.. image:: https://travis-ci.org/zopefoundation/z3c.coverage.png
+    :target: https://travis-ci.org/zopefoundation/z3c.coverage
+
 This package contains tools to work with Python coverage data.
 
 ``coveragereport`` produces HTML reports from coverage data, with
