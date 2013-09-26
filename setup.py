@@ -16,8 +16,10 @@
 import os
 from setuptools import setup, find_packages
 
+
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+
 
 setup(
     name='z3c.coverage',
@@ -25,11 +27,7 @@ setup(
     author="Zope Community",
     author_email="zope3-dev@zope.org",
     description="A script to visualize coverage reports via HTML",
-    long_description=(
-        read('README.txt')
-        + '\n\n' +
-        read('CHANGES.txt')
-        ),
+    long_description=read('README.rst') + '\n\n' + read('CHANGES.rst'),
     license="ZPL 2.1",
     keywords="zope3 test coverage html",
     classifiers=[
@@ -55,15 +53,15 @@ setup(
     namespace_packages=['z3c'],
     extras_require=dict(
         test=['six', 'zope.testing'],
-        ),
+    ),
     install_requires=[
         'setuptools',
         'coverage',
-        ],
+    ],
     entry_points="""
         [console_scripts]
         coveragereport = z3c.coverage.coveragereport:main
         coveragediff = z3c.coverage.coveragediff:main
-        """,
+    """,
     zip_safe=False,
 )
