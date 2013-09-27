@@ -319,11 +319,11 @@ def test_suite():
     return unittest.TestSuite([
         doctest.DocFileSuite(
             'README.txt', setUp=setUp, checker=checker,
-            optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS,
+            optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS,
             ),
         doctest.DocFileSuite(
             'coveragediff.txt', setUp=setUp, checker=checker,
-            optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS,
+            optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS,
             ),
         doctest.DocTestSuite(checker=checker),
         doctest.DocTestSuite(
