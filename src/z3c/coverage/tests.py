@@ -217,7 +217,8 @@ def doctest_get_svn_revision():
 def doctest_syntax_highlight_with_enscript():
     """Test for syntax_highlight
 
-    This function takes a cover file, converts it to a nicely colored HTML output:
+    This function takes a cover file, converts it to a nicely colored
+    HTML output:
 
         >>> filename = os.path.join(
         ...     os.path.dirname(z3c.coverage.__file__), '__init__.py')
@@ -264,6 +265,7 @@ def doctest_syntax_highlight_without_enscript():
 
     """
 
+
 def doctest_main_default_arguments():
     """Test for main()
 
@@ -300,8 +302,10 @@ def doctest_main_default_arguments():
 
     """
 
+
 def setUp(test):
     test.globs['print_function'] = print_function
+
 
 def test_suite():
     checker = renormalizing.RENormalizing([
@@ -315,11 +319,11 @@ def test_suite():
     return unittest.TestSuite([
         doctest.DocFileSuite(
             'README.txt', setUp=setUp, checker=checker,
-            optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
+            optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS,
             ),
         doctest.DocFileSuite(
             'coveragediff.txt', setUp=setUp, checker=checker,
-            optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
+            optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS,
             ),
         doctest.DocTestSuite(checker=checker),
         doctest.DocTestSuite(
@@ -327,6 +331,7 @@ def test_suite():
         doctest.DocTestSuite(
             'z3c.coverage.coveragereport'),
         ])
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
