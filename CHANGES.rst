@@ -1,7 +1,7 @@
 Changes
 =======
 
-2.0.1 (unreleased)
+2.0.1 (2013-10-01)
 ------------------
 
 - Bug: coveragereport now also accepts non-ASCII chars in source files.
