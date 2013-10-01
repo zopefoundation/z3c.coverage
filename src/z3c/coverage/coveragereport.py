@@ -59,6 +59,7 @@ HIGHLIGHT_COMMAND = ['enscript', '-q', '--footer', '--header', '-h',
 #: Expected encoding of highlight command (enscript).
 HIGHLIGHT_CMD_ENCODING = 'latin1'
 
+
 class Lazy(object):
     """Descriptor for lazy evaluation"""
 
@@ -146,7 +147,7 @@ class TraceCoverageNode(CoverageNode):
         total = 0
         with open(filename) as file:
             for line in file:
-                if line.startswith(' '*7) or len(line) < 7:
+                if line.startswith(' ' * 7) or len(line) < 7:
                     continue
                 total += 1
                 if not line.startswith('>>>>>>'):
@@ -182,8 +183,8 @@ class CoverageCoverageNode(CoverageNode):
         OTHER     = '       '
         lines = []
         f = open(self.source_filename)
-        for n, line in enumerate(f):
-            n += 1 # workaround lack of enumerate(f, start=1) support in 2.4/5
+        for n, line in enumerate(f, start=1):
+            n += 1  # workaround: no enumerate(f, start=1) support in 2.4/5
             if n in self._missing:      prefix = MISSING
             elif n in self._excluded:   prefix = EXCLUDED
             elif n in self._statements: prefix = STATEMENT
@@ -275,6 +276,7 @@ def apply_path_aliases(cov, aliases):
     # longest key first
     aliases = sorted(
         aliases.items(), key=lambda i: len(i[0]), reverse=True)
+
     def fixup_filename(filename):
         for alias, local in aliases:
             return local + filename[len(alias):]
@@ -405,18 +407,20 @@ def generate_html(output_filename, tree, my_index, info, path, footer=""):
     html = open(output_filename, 'w')
     print(HEADER % {'name': index_to_name(my_index)}, file=html)
     info = [(tree.get_at(node_path), node_path) for node_path in info]
+
     def key(node_info):
         (node, node_path) = node_info
         return (len(node_path), -node.uncovered, node_path and node_path[-1])
     info.sort(key=key)
     for node, file_index in info:
         if not file_index:
-            continue # skip root node
+            continue  # skip root node
         print_table_row(html, node, file_index)
     print('</table><hr/>', file=html)
-    print(
-        (tree.get_at(my_index).html_source).encode(HIGHLIGHT_CMD_ENCODING),
-        file=html)
+    source = tree.get_at(my_index).html_source
+    if not isinstance(source, str):
+        source = source.encode(HIGHLIGHT_CMD_ENCODING)
+    print(source, file=html)
     print(FOOTER % footer, file=html)
     html.close()
 
@@ -437,7 +441,7 @@ def syntax_highlight(filename):
             text = cgi.escape(file.read())
     else:
         text = text.decode(HIGHLIGHT_CMD_ENCODING)
-        text = text[text.find('<PRE>')+len('<PRE>'):]
+        text = text[text.find('<PRE>') + len('<PRE>'):]
         text = text[:text.find('</PRE>')]
     return text
 
@@ -447,7 +451,7 @@ def highlight_uncovered_lines(text):
     def color_uncov(line):
         # The line must start with the missing line indicator or some HTML
         # was put in front of it.
-        if line.startswith('&gt;'*6) or '>'+'&gt;'*6 in line:
+        if line.startswith('&gt;' * 6) or '>' + '&gt;' * 6 in line:
             return ('<div class="notcovered">%s</div>'
                     % line.rstrip('\n'))
         return line
@@ -466,6 +470,7 @@ def generate_htmls_from_tree(tree, path, report_path, footer=""):
     """
     def make_html(node, my_index):
         info = []
+
         def list_parents_and_children(node, index):
             position = len(index)
             my_position = len(my_index)
@@ -478,7 +483,7 @@ def generate_htmls_from_tree(tree, path, report_path, footer=""):
         traverse_tree(tree, [], list_parents_and_children)
         output_filename = os.path.join(report_path, index_to_url(my_index))
         if not my_index:
-            return # skip root node
+            return  # skip root node
         generate_html(output_filename, tree, my_index, info, path, footer)
     traverse_tree(tree, [], make_html)
 
@@ -487,12 +492,15 @@ def generate_overall_html_from_tree(tree, output_filename, footer=""):
     """Generate an overall HTML file for all nodes in the tree."""
     html = open(output_filename, 'w')
     print(HEADER % {'name': ', '.join(sorted(tree.keys()))}, file=html)
+
     def print_node(node, file_index):
-        if file_index: # skip root node
+        if file_index:  # skip root node
             print_table_row(html, node, file_index)
+
     def sort_by(node_info):
         (key, node) = node_info
         return (-node.uncovered, key)
+
     traverse_tree_in_order(tree, [], print_node, sort_by)
     print('</table><hr/>', file=html)
     print(FOOTER % footer, file=html)
@@ -559,7 +567,7 @@ def make_coverage_reports(path, report_path, opts):
     if opts.verbose:
         print(tree)
     rev = get_svn_revision(os.path.join(path, os.path.pardir))
-    timestamp = str(datetime.datetime.utcnow())+"Z"
+    timestamp = str(datetime.datetime.utcnow()) + "Z"
     footer = "Generated for revision %s on %s" % (rev, timestamp)
     create_report_path(report_path)
     generate_htmls_from_tree(tree, path, report_path, footer)
@@ -588,7 +596,7 @@ def main(args=None):
 
     parser = optparse.OptionParser(
         "usage: %prog [options] [inputpath [outputdir]]",
-        description=
+        description =
             'Converts coverage reports to HTML.  If the input path is'
             ' omitted, it defaults to coverage or .coverage, whichever'
             ' exists.  If the output directory is omitted, it defaults to'
@@ -600,9 +608,12 @@ def main(args=None):
     parser.add_option('-v', '--verbose', help='be verbose (default)',
                       action='store_const', const=1, dest='verbose', default=1)
     parser.add_option('--strip-prefix', metavar='PREFIX',
-                      help='strip base directory from filenames loaded from .coverage')
+                      help=('strip base directory from filenames loaded '
+                            'from .coverage'),
+                      )
     parser.add_option('--path-alias', metavar='PATH=LOCALPATH',
-                      help='define path mappings for filenames loaded from .coverage',
+                      help=('define path mappings for filenames loaded '
+                            'from .coverage'),
                       action='append')
 
     if args is None:

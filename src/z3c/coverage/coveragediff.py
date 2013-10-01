@@ -72,9 +72,9 @@ def filter_files(files, include=(), exclude=()):
 
     """
     if not include:
-        include = ['.'] # include everything by default
+        include = ['.']  # include everything by default
     if not exclude:
-        exclude = []    # exclude nothing by default
+        exclude = []     # exclude nothing by default
     include = list(map(re.compile, include))
     exclude = list(map(re.compile, exclude))
     return [fn for fn in files
@@ -136,7 +136,7 @@ def count_coverage(filename):
         for line in file:
             if line.startswith('>>>>>>'):
                 uncovered += 1
-            elif len(line) >= 7 and not line.startswith(' '*7):
+            elif len(line) >= 7 and not line.startswith(' ' * 7):
                 covered += 1
     return covered, uncovered
 
@@ -302,7 +302,8 @@ def main():
         parser.error("wrong number of arguments")
     olddir, newdir = args
     if opts.email:
-        reporter = ReportEmailer(opts.sender, opts.email, opts.subject, opts.web_url)
+        reporter = ReportEmailer(
+            opts.sender, opts.email, opts.subject, opts.web_url)
     else:
         reporter = ReportPrinter(opts.web_url)
     compare_dirs(olddir, newdir, include=opts.include, exclude=opts.exclude,
