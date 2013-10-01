@@ -4,7 +4,8 @@ Changes
 2.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Bug: coveragereport now also accepts non-ASCII chars in source files
+  (also fix the case when enscript is not available).
 
 
 2.0.1 (2013-10-01)
