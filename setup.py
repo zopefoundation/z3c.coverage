@@ -58,7 +58,7 @@ setup(
     ),
     install_requires=[
         'setuptools',
-        'coverage',
+        'coverage < 4.0',
     ],
     entry_points="""
         [console_scripts]
