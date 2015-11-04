@@ -4,7 +4,7 @@ Changes
 2.0.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Standardize namespace __init__
 
 
 2.0.2 (2013-10-01)
