@@ -4,7 +4,7 @@ Changes
 2.0.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Remove the ``coverage`` dependency constraint.
 
 
 2.0.3 (2015-11-09)
