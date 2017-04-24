@@ -1,12 +1,19 @@
 language: python
-env:
-    - TOXENV=py26
-    - TOXENV=py27
-    - TOXENV=py33
-    - TOXENV=pypy
+sudo: false
+addons:
+    apt:
+        packages:
+            - enscript
+python:
+    - 2.7
+    - 3.3
+    - 3.4
+    - 3.5
+    - 3.6
+    - pypy
+    - pypy3
 install:
-    - sudo apt-get install enscript
-    - pip install tox
+    - pip install tox-travis
 script:
     - tox
 notifications:
