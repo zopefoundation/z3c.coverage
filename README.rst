@@ -138,8 +138,8 @@ coverage.py
 -----------
 
 `coverage.py <http://pypi.python.org/pypi/coverage>`_ can produce
-a ``.coverage`` file, which is actually a Python pickle containing
-(incomplete) coverage information.  To get it, use ::
+a ``.coverage`` file containing (incomplete) coverage information.  To get it,
+use ::
 
   coverage run bin/testrunner
 
@@ -170,10 +170,11 @@ if somebody wrote a patch.
           Alternatively you could use ``coverage combine`` to manipulate the
           ``.coverage`` file itself, as described in the documentation.
 
-.. note:: ``.coverage`` files are Python pickles, which has important
-          security ramifications.  You can craft a Pickle file that executes
-          arbitrary code during load time.  **Do not ever attempt to use
-          pickles received from untrusted sources.**
+.. note:: ``.coverage`` files produced by older versions of coverage.py (< 4.0)
+          are Python pickles, which has important security ramifications.  You
+          can craft a pickle file that executes arbitrary code during load
+          time.  **Do not ever attempt to use pickles received from untrusted
+          sources.**
 
 
 trace.py

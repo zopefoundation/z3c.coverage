@@ -4,6 +4,8 @@ Changes
 2.1.0 (unreleased)
 ------------------
 
+- Support (and require) coverage.py >= 4.0.
+
 - Dropped Python 2.6 support.
 
 - Added Python 3.4, 3.5 and 3.6 support.
@@ -12,7 +14,7 @@ Changes
 2.0.3 (2015-11-09)
 ------------------
 
-- Standardize namespace __init__
+- Standardize namespace __init__.
 
 
 2.0.2 (2013-10-01)

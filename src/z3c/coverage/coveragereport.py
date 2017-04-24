@@ -51,6 +51,10 @@ import subprocess
 import optparse
 import tempfile
 
+import coverage
+from coverage.data import CoverageData
+from coverage.files import PathAliases, relative_filename
+
 
 HIGHLIGHT_COMMAND = ['enscript', '-q', '--footer', '--header', '-h',
                      '--language=html', '--highlight=python', '--color',
@@ -262,13 +266,7 @@ def create_tree_from_coverage(cov, strip_prefix=None, path_aliases=None):
             short_name = short_name.replace('/', os.path.sep)
             short_name = short_name.lstrip(os.path.sep)
         else:
-            if hasattr(cov, 'file_locator'):
-                # Old version, before June 2015
-                # https://bitbucket.org/ned/coveragepy/commits/0f4918ab6892156399c87c07f831a4e76bb20e9a
-                short_name = cov.file_locator.relative_filename(filename)
-            else:
-                from coverage import files
-                short_name = files.relative_filename(filename)
+            short_name = relative_filename(filename)
         tree_index = filename_to_list(short_name.replace(os.path.sep, '.'))
         if 'tests' in tree_index or 'ftests' in tree_index:
             continue
@@ -276,19 +274,14 @@ def create_tree_from_coverage(cov, strip_prefix=None, path_aliases=None):
     return root
 
 
-def apply_path_aliases(cov, aliases):
+def apply_path_aliases(cov, alias_map):
     """Adjust filenames in coverage data."""
-    # XXX: fragile: we're touching the internal data structures directly
-    # longest key first
-    aliases = sorted(
-        aliases.items(), key=lambda i: len(i[0]), reverse=True)
-
-    def fixup_filename(filename):
-        for alias, local in aliases:
-            return local + filename[len(alias):]
-        return filename
-    cov.data.lines = map_dict_keys(fixup_filename, cov.data.lines)
-    cov.data.arcs = map_dict_keys(fixup_filename, cov.data.arcs)
+    data = CoverageData()
+    aliases = PathAliases()
+    for k, v in alias_map.items():
+        aliases.add(k, v)
+    data.update(cov.data, aliases)
+    cov.data = data
 
 
 def map_dict_keys(fn, d):
@@ -557,7 +550,6 @@ def load_coverage(path, opts):
         tree = create_tree_from_files(filelist, path)
         return tree
     else:
-        import coverage
         cov = coverage.coverage(data_file=path, config_file=False)
         cov.load()
         tree = create_tree_from_coverage(cov, strip_prefix=opts.strip_prefix,
