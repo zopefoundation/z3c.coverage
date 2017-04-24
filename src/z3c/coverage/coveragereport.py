@@ -349,11 +349,11 @@ def print_table_row(html, node, file_index):
         nice_name += '.py'
     else:
         nice_name += '/'
-    print('<tr><td><a href="%s">%s</a></td>' % \
+    print('<tr><td><a href="%s">%s</a></td>' %
               (index_to_url(file_index), nice_name), file=html)
-    print('<td style="background: %s">&nbsp;&nbsp;&nbsp;&nbsp;</td>' % \
+    print('<td style="background: %s">&nbsp;&nbsp;&nbsp;&nbsp;</td>' %
               (percent_to_colour(node.percent)), file=html)
-    print('<td>covered %s%% (%s of %s uncovered)</td></tr>' % \
+    print('<td>covered %s%% (%s of %s uncovered)</td></tr>' %
               (node.percent, node.uncovered, node.total), file=html)
 
 
@@ -586,12 +586,12 @@ def main(args=None):
 
     parser = optparse.OptionParser(
         "usage: %prog [options] [inputpath [outputdir]]",
-        description =
+        description=(
             'Converts coverage reports to HTML.  If the input path is'
             ' omitted, it defaults to coverage or .coverage, whichever'
             ' exists.  If the output directory is omitted, it defaults to'
             ' inputpath + /report or ./coverage-reports, depending on whether'
-            ' the input path points to a directory or a file.')
+            ' the input path points to a directory or a file.'))
 
     parser.add_option('-q', '--quiet', help='be quiet',
                       action='store_const', const=0, dest='verbose')
