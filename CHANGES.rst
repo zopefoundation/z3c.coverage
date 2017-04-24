@@ -1,7 +1,7 @@
 Changes
 =======
 
-2.1.0 (unreleased)
+2.1.0 (2017-04-24)
 ------------------
 
 - Support (and require) coverage.py >= 4.0.

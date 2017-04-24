@@ -4,7 +4,8 @@ include *.py
 include buildout.cfg
 include tox.ini
 include .travis.yml
+include .coveragerc
 
-recursive-include src *
+recursive-include src *.cover *.coverage *.txt
 
 global-exclude *.pyc
