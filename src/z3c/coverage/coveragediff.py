@@ -31,7 +31,7 @@ import optparse
 
 try:
     from email.MIMEText import MIMEText
-except ImportError:
+except ImportError:  # pragma: nocover
     from email.mime.text import MIMEText
 
 

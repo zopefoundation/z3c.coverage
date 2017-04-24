@@ -37,11 +37,8 @@ You can produce such files with the Zope test runner by specifying
 ``trace`` module in the standard library.  Although you should consider
 using the above-mentioned coverage package instead, as it's much faster
 than trace.py.
-
-$Id$
 """
 from __future__ import print_function
-__docformat__ = "reStructuredText"
 
 import sys
 import os
@@ -282,11 +279,6 @@ def apply_path_aliases(cov, alias_map):
         aliases.add(k, v)
     data.update(cov.data, aliases)
     cov.data = data
-
-
-def map_dict_keys(fn, d):
-    """Transform {x: y} to {fn(x): y}."""
-    return dict((fn(k), v) for k, v in d.items())
 
 
 def traverse_tree(tree, index, function):

@@ -10,3 +10,5 @@ bin/
 develop-eggs/
 eggs/
 tags
+parts/
+coverage.xml
