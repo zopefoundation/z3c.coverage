@@ -4,3 +4,9 @@ build/
 dist/
 __pycache__/
 *.py[co]
+.coverage
+.installed.cfg
+bin/
+develop-eggs/
+eggs/
+tags
