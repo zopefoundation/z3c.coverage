@@ -262,7 +262,13 @@ def create_tree_from_coverage(cov, strip_prefix=None, path_aliases=None):
             short_name = short_name.replace('/', os.path.sep)
             short_name = short_name.lstrip(os.path.sep)
         else:
-            short_name = cov.file_locator.relative_filename(filename)
+            if hasattr(cov, 'file_locator'):
+                # Old version, before June 2015
+                # https://bitbucket.org/ned/coveragepy/commits/0f4918ab6892156399c87c07f831a4e76bb20e9a
+                short_name = cov.file_locator.relative_filename(filename)
+            else:
+                from coverage import files
+                short_name = files.relative_filename(filename)
         tree_index = filename_to_list(short_name.replace(os.path.sep, '.'))
         if 'tests' in tree_index or 'ftests' in tree_index:
             continue
