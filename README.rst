@@ -153,10 +153,9 @@ by ``os.path.realpath``.  This is very inconvenient.  Sorry.
 
 ``coveragediff`` is unable to compare two ``.coverage`` files and report
 regressions.  One reason for that is the incompleteness of the data format
-(the pickle contains line numbers of executed statements, but doesn't
-say which lines contain code and which ones are
-blank/comments/continuation lines/excluded source lines).  The other
-reason is simpler: nobody wrote the code. `;)`
+(it line numbers of executed statements, but doesn't say which lines contain
+code and which ones are blank/comments/continuation lines/excluded source
+lines).  The other reason is simpler: nobody wrote the code. `;)`
 
 Unfortunately ``coverage annotate`` does not produce files compatible
 with ``coveragereport``/``coveragediff``.  This could also be remedied
@@ -169,12 +168,6 @@ if somebody wrote a patch.
           the sources can be found.  Use the ``--path-alias`` option for that.
           Alternatively you could use ``coverage combine`` to manipulate the
           ``.coverage`` file itself, as described in the documentation.
-
-.. note:: ``.coverage`` files produced by older versions of coverage.py (< 4.0)
-          are Python pickles, which has important security ramifications.  You
-          can craft a pickle file that executes arbitrary code during load
-          time.  **Do not ever attempt to use pickles received from untrusted
-          sources.**
 
 
 trace.py
