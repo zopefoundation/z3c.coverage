@@ -18,8 +18,9 @@ from zope.testing import renormalizing
 import z3c.coverage
 from z3c.coverage import coveragereport
 from z3c.coverage.coveragereport import (
-    Lazy, CoverageNode, index_to_nice_name, index_to_name, percent_to_colour,
-    traverse_tree_in_order, get_svn_revision, syntax_highlight)
+    Lazy, CoverageNode, CoverageCoverageNode, index_to_nice_name,
+    index_to_name, percent_to_colour, traverse_tree_in_order,
+    get_svn_revision, syntax_highlight)
 
 
 def doctest_Lazy():
@@ -125,6 +126,38 @@ def doctest_CoverageNode():
 
         >>> print(root['z3c'])
         64% covered (94 of 262 lines uncovered)
+
+    """
+
+
+SAMPLE_PY = os.path.join(os.path.dirname(z3c.coverage.__file__), 'sample.py')
+
+
+class FakeCoverage(object):
+
+    def analysis2(self, filename):
+        statements = [4, 5, 8, 9]
+        missing = [5]
+        excluded = [9]
+        return (filename, statements, excluded, missing, str(missing[0]))
+
+
+def doctests_CoverageCoverageNode_annotated_source():
+    r"""Test for CoverageCoverageNode.annotated_source
+
+        >>> cov = FakeCoverage()
+        >>> node = CoverageCoverageNode(cov, SAMPLE_PY)
+        >>> for line in node.annotated_source.splitlines():
+        ...    print(('| ' + line).strip())
+        |        # sample source file for the test suite
+        |
+        |
+        |     1: def foo():
+        | >>>>>>     return 42
+        |
+        |
+        |     1: def bar():  # pragma: nocover
+        |      #     return 42
 
     """
 

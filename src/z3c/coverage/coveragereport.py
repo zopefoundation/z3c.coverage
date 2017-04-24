@@ -185,7 +185,6 @@ class CoverageCoverageNode(CoverageNode):
         lines = []
         f = open(self.source_filename)
         for n, line in enumerate(f, start=1):
-            n += 1  # workaround: no enumerate(f, start=1) support in 2.4/5
             if n in self._missing:      prefix = MISSING
             elif n in self._excluded:   prefix = EXCLUDED
             elif n in self._statements: prefix = STATEMENT

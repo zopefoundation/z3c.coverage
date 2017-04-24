@@ -12,3 +12,4 @@ eggs/
 tags
 parts/
 coverage.xml
+coverage-reports/

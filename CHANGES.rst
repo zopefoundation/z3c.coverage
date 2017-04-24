@@ -6,6 +6,9 @@ Changes
 
 - Support (and require) coverage.py >= 4.0.
 
+- Fix incorrect highlighting of missed lines when processing coverage.py data
+  (broken since 2.0.2).
+
 - Dropped Python 2.6 support.
 
 - Added Python 3.4, 3.5 and 3.6 support.
