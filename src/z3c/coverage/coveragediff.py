@@ -122,7 +122,7 @@ def compare_dirs(olddir, newdir, include=(), exclude=(), warn=warn):
 
     old_coverage_set = set(old_coverage_files)
     for fn in sorted(new_coverage_files):
-        if fn in old_coverage_files:
+        if fn in old_coverage_set:
             compare_file(os.path.join(olddir, fn),
                          os.path.join(newdir, fn), warn=warn)
         else:
