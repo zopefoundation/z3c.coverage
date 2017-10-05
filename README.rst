@@ -2,7 +2,7 @@
 z3c.coverage
 ============
 
-.. image:: https://travis-ci.org/zopefoundation/z3c.coverage.png
+.. image:: https://travis-ci.org/zopefoundation/z3c.coverage.svg
     :target: https://travis-ci.org/zopefoundation/z3c.coverage
 
 This package contains tools to work with Python coverage data.
