@@ -557,7 +557,7 @@ def make_coverage_reports(path, report_path, opts):
         print(tree)
     rev = get_svn_revision(os.path.join(path, os.path.pardir))
     timestamp = str(datetime.datetime.utcnow()) + "Z"
-    footer = "Generated for revision %s on %s" % (rev, timestamp)
+    footer = "Generated for revision {} on {}".format(rev, timestamp)
     create_report_path(report_path)
     generate_htmls_from_tree(tree, path, report_path, footer)
     generate_overall_html_from_tree(

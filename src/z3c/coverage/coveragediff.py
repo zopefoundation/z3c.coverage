@@ -112,7 +112,7 @@ def warn(filename, message):
 
     """
     module = strip(os.path.basename(filename), '.cover')
-    print('%s: %s' % (module, message))
+    print('{}: {}'.format(module, message))
 
 
 def compare_dirs(olddir, newdir, include=(), exclude=(), warn=warn):
@@ -240,7 +240,7 @@ class ReportPrinter(object):
     def warn(self, filename, message):
         """Warn about test coverage regression."""
         module = strip(os.path.basename(filename), '.cover')
-        print('%s: %s' % (module, message))
+        print('{}: {}'.format(module, message))
         if self.web_url:
             url = urljoin(self.web_url, module + '.html')
             print('See ' + url)
@@ -264,7 +264,7 @@ class ReportEmailer(object):
     def warn(self, filename, message):
         """Warn about test coverage regression."""
         module = strip(os.path.basename(filename), '.cover')
-        self.warnings.append('%s: %s' % (module, message))
+        self.warnings.append('{}: {}'.format(module, message))
         if self.web_url:
             url = urljoin(self.web_url, module + '.html')
             self.warnings.append('See ' + url + '\n')
