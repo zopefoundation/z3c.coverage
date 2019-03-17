@@ -4,7 +4,7 @@ Changes
 2.1.1 (unreleased)
 ------------------
 
-- Dropped Python 3.3 support.
+- Dropped Python 3.3 and 3.4 support.
 
 
 2.1.0 (2017-04-24)
