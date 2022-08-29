@@ -2,8 +2,9 @@
 z3c.coverage
 ============
 
-.. image:: https://travis-ci.com/zopefoundation/z3c.coverage.svg
-    :target: https://travis-ci.com/zopefoundation/z3c.coverage
+**Caution!**
+
+This repository has been archived. If you want to work on it please open a ticket in https://github.com/zopefoundation/meta/issues requesting its unarchival.
 
 This package contains tools to work with Python coverage data.
 
